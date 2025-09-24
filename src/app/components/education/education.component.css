@@ -4,6 +4,7 @@
 .mark{
     display: flex;
     justify-content: center;
+    align-items: center;
     max-width: 100%;
     background-color: #AB77FF44;
     padding: 1%;
@@ -86,7 +87,6 @@ h1,h2,h4, p {
 }
 
 summary {
-  cursor: pointer;
   list-style: none;
 }
 .arrow {
