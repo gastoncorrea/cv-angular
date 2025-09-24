@@ -2,7 +2,8 @@
     margin: 10% auto;
 }
 .mark{
-    display: block;
+    display: flex;
+    justify-content: center;
     max-width: 100%;
     background-color: #AB77FF44;
     padding: 1%;
@@ -13,11 +14,17 @@
     text-align: center;
     font-weight: 500;
     font-style: normal;
-    margin: 0%;
+    margin: 0% 5%;
     font-family: 'Vend Sans', sans-serif;
 }
 .education-item{
     padding: 0% 2%;
+    margin: 5% 1%;
+    padding: 2%;
+    border: 2px solid #AB77FF44;
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    background-color: #FFFFFF;
 }
 .title-education{
     margin-top: 3%;
@@ -49,7 +56,7 @@ h1,h2,h4, p {
     cursor: pointer;
 }
 
-.button-project:hover {
+.button-certificated:hover {
     background-color: #AB77FF44;
 }
 
@@ -76,4 +83,18 @@ h1,h2,h4, p {
 
 .button-tools:hover {
     background-color: #AB77FF44;
+}
+
+summary {
+  cursor: pointer;
+  list-style: none;
+}
+.arrow {
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+
+/* Cuando el details está abierto */
+details[open] .arrow {
+  transform: rotate(90deg); /* Apunta hacia abajo */
 }
