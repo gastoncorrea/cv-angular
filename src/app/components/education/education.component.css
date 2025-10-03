@@ -1,6 +1,3 @@
-.education{
-    margin: 10% auto;
-}
 .education-item{
     padding: 0% 2%;
     margin: 5% 1%;
@@ -65,17 +62,4 @@ h1,h2, p {
 
 .button-tools:hover {
     background-color: #AB77FF44;
-}
-
-summary {
-  list-style: none;
-}
-.arrow {
-  transition: transform 0.3s ease;
-  display: inline-block;
-}
-
-/* Cuando el details está abierto */
-details[open] .arrow {
-  transform: rotate(90deg); /* Apunta hacia abajo */
 }

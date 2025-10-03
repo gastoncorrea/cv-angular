@@ -3,6 +3,9 @@ body {
   margin: 0%;
   width: 100%;
 }
+.component{
+    margin: 10% auto;
+}
 
 .title {
     display: block;
@@ -32,4 +35,14 @@ body {
     font-style: normal;
     margin: 0% 5%;
     font-family: 'Vend Sans', sans-serif;
+}
+summary {
+  list-style: none;
+}
+.arrow {
+  transition: transform 0.3s ease;
+  display: inline-block;
+}
+details[open] .arrow {
+  transform: rotate(90deg); /* Apunta hacia abajo */
 }
