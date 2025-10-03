@@ -1,5 +1,35 @@
-/* You can add global styles to this file, and also import other style files */
 body {
   font-family: "Vend Sans", sans-serif;
   margin: 0%;
+  width: 100%;
+}
+
+.title {
+    display: block;
+    max-width: 100%;
+    background-color: #AB77FF44;
+    padding: 1%;
+}
+.title h4 {
+    text-align: center;
+    font-weight: 500;
+    font-style: normal;
+    margin: 0%;
+    font-family: 'Vend Sans', sans-serif;
+}
+.title-list{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    background-color: #AB77FF44;
+    padding: 1%;
+    margin-top: 5%;
+}
+.title-list h4 {
+    text-align: center;
+    font-weight: 500;
+    font-style: normal;
+    margin: 0% 5%;
+    font-family: 'Vend Sans', sans-serif;
 }

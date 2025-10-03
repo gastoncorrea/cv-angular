@@ -1,0 +1,43 @@
+.iconos-contacto{
+    display: flex;
+    margin-top: 5%;
+    max-width: 100%;
+    justify-content: space-around;   
+}
+.contacto{
+    display: flex;
+    max-width: 20%; 
+}
+
+.img-contacto{
+    max-width: 25%;
+    display: flex;
+    align-items: center;
+    
+}
+.logo-img{
+    max-width: 100%;
+}
+.button-contact{
+    all: unset;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;    
+    padding: 4%;
+    background-color: white;
+    border: 3px solid;
+    border-color: #AB77FF44;
+    border-radius: 5%;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    transition: background-color 0.3s, transform 0.3s;
+    cursor: pointer;
+    
+}
+.button-contact:hover {
+    background-color: #AB77FF44;
+}
+.nombre-contacto{
+    width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
