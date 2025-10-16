@@ -8,8 +8,8 @@ import { ProjectsComponent } from './components/projects/projects.component';
 import { EducationComponent } from './components/education/education.component';
 import { ContactsComponent } from './components/contacts/contacts.component';
 import { SkillsComponent } from './components/skills/skills.component';
-import { ProjectDetailComponent } from './components/project-detail/project-detail.component';
 import { ToolsComponent } from './shared/components/tools/tools.component';
+import { HomeComponent } from './components/home/home.component';
 
 @NgModule({
   declarations: [
@@ -19,8 +19,8 @@ import { ToolsComponent } from './shared/components/tools/tools.component';
     EducationComponent,
     ContactsComponent,
     SkillsComponent,
-    ProjectDetailComponent,
-    ToolsComponent
+    ToolsComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,

@@ -1,3 +1,6 @@
+.component {
+    margin-top: 3%;
+}
 .tools-view{
     display: flex;
     justify-content: center;
