@@ -1,0 +1,86 @@
+.tools-view{
+    display: flex;
+    justify-content: center;
+    margin: 5% auto;
+}
+.summary-tools{
+    all: unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+    padding: 2%;
+    background-color: white;
+    border: 3px solid;
+    border-color: #AB77FF44;
+    border-radius: 5%;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    transition: background-color 0.3s, transform 0.3s;
+    cursor: pointer;
+}
+
+.button-tools:hover {
+    background-color: #AB77FF44;
+}
+.card-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.card {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 2% 2%;
+    margin: 2% 1%;
+    border: 2px solid #AB77FF44;
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    background-color: #FFFFFF;
+}
+.skill-img {
+    width: 10%;
+}
+
+.skill-img img {
+    width: 100%;
+}
+
+.skill-description {
+    width: 80%;
+    text-align: start;
+}
+
+.skill-description h4 {
+    margin: 1%;
+}
+
+.skill-description p {
+    margin: 1%;
+}
+.button-project {
+    all: unset;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    padding: 2%;
+    background-color: white;
+    border: 3px solid;
+    border-color: #AB77FF44;
+    border-radius: 5%; /* usa el mismo color del texto que lo rodea */
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    transition: background-color 0.3s, transform 0.3s;
+    cursor: pointer;
+}
+.button-project:hover {
+    background-color: #AB77FF44;
+}
+.button-project a{
+    text-decoration: none;
+    color: inherit;
+    font: inherit;
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
