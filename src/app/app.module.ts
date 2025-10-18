@@ -10,6 +10,10 @@ import { ContactsComponent } from './components/contacts/contacts.component';
 import { SkillsComponent } from './components/skills/skills.component';
 import { ToolsComponent } from './shared/components/tools/tools.component';
 import { HomeComponent } from './components/home/home.component';
+import { LoginFormComponent } from './pages/auth/login-form/login-form.component';
+
+import { HttpClientModule } from '@angular/common/http';
+import { FormsModule,ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -20,11 +24,15 @@ import { HomeComponent } from './components/home/home.component';
     ContactsComponent,
     SkillsComponent,
     ToolsComponent,
-    HomeComponent
+    HomeComponent,
+    LoginFormComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,0 +1,40 @@
+<div class="component">
+    <div class="center-content">
+        <div>
+            <h3>Nuevo usuario</h3>
+        </div>
+        <div>
+            <p>Completa los campos del formulario para crear un nuevo usuario</p>
+        </div>
+        <form [formGroup]="form" (ngSubmit)="sendLogin()">
+            <div>
+                <label for="emailLogin">Email:</label>
+                <input type="email" formControlName="email" id="emailLogin" placeholder="user@proveedor">
+            </div>
+            <div *ngIf="Email?.errors && Email?.touched">
+                <p *ngIf="Email?.hasError('required')" class="error">
+                    Campo obligatorio
+                </p>
+            </div>
+            <div> 
+                <p *ngIf="form.get('email')?.hasError('email') && form.get('email')?.touched" class="error">
+                    Ingresá un correo válido (ej: nombre@dominio.com)
+                </p>
+            </div>
+            <div>
+                <label for="passwordLogin">Password:</label>
+                <input type="password" formControlName="password" id="passwordLogin">
+            </div>
+            <div *ngIf="Password?.errors && Password?.touched">
+                <p *ngIf="Password?.hasError('required')" class="error">
+                    Campo obligatorio
+                </p>
+            </div>
+            <div>
+                <button type="submit" [disabled]="form.invalid">
+                    Crear usuario
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
