@@ -1,0 +1,9 @@
+.residencia {
+    display: flex;
+    justify-content: center;
+
+}
+
+.residencia h4 {
+    margin: 0%;
+}

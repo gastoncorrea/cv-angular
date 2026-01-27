@@ -13,7 +13,7 @@ export interface Persona {
     fecha_nacimiento: string; // "string (date)" in OpenAPI
     num_celular: string; // "string (pattern: ...)" in OpenAPI
     usuario?: UsuarioApi; // Full user object as per OpenAPI
-    residencia?: Residencia[]; // Array of Residencia
+    residencias?: Residencia[]; // Array of Residencia
     estudios?: Educacion[]; // Array of Educacion
     proyectos?: Proyecto[]; // Array of Proyecto
     contacto?: Contacto[]; // Array of Contacto

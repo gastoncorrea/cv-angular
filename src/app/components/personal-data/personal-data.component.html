@@ -12,13 +12,9 @@
             <span *ngIf="personalData.num_celular"> | {{ personalData.num_celular }}</span>
         </p>
     </div>
-    <div class="residencia" *ngIf="personalData.residencia && personalData.residencia.length > 0">
-        <ng-container *ngFor="let res of personalData.residencia; let i = index">
-            <h4>{{ res.localidad }} - </h4>
-            <h4>{{ res.provincia }} - </h4>
-            <h4>{{ res.pais }}<span *ngIf="i < personalData.residencia.length - 1"> | </span></h4>
-        </ng-container>
-    </div>
+
+    <app-residence-data [residences]="personalData.residencias"></app-residence-data>
+
     <div class="personal-description">
         <p>{{ personalData.descripcion_mi }}</p>
     </div>

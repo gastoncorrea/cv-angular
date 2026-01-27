@@ -1,0 +1,7 @@
+<div class="residencia" *ngIf="residences && residences.length > 0">
+    <ng-container *ngFor="let res of residences; let i = index">
+        <h4>{{ res.localidad }} - </h4>
+        <h4>{{ res.provincia }} - </h4>
+        <h4>{{ res.pais }}<span *ngIf="i < residences.length - 1"> | </span></h4>
+    </ng-container>
+</div>

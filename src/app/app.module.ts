@@ -14,6 +14,7 @@ import { LoginFormComponent } from './pages/auth/login-form/login-form.component
 
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule,ReactiveFormsModule } from '@angular/forms';
+import { ResidenceDataComponent } from './components/residence-data/residence-data.component';
 import { UserComponent } from './components/user/user.component';
 
 @NgModule({
@@ -27,7 +28,8 @@ import { UserComponent } from './components/user/user.component';
     ToolsComponent,
     HomeComponent,
     LoginFormComponent,
-    UserComponent
+    UserComponent,
+    ResidenceDataComponent
   ],
   imports: [
     BrowserModule,
