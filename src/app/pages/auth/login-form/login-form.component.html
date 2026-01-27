@@ -1,12 +1,23 @@
 <div class="component">
     <div class="center-content">
         <div>
-            <h3>LOGIN</h3>
+            <h3>{{ isRegisterMode ? 'REGISTRO' : 'LOGIN' }}</h3>
         </div>
         <div>
-            <p>Completa los campos del formulario para habilitar el modo de edición</p>
+            <p>Completa los campos del formulario para {{ isRegisterMode ? 'registrar un nuevo usuario' : 'habilitar el modo de edición' }}</p>
         </div>
         <form [formGroup]="form" (ngSubmit)="sendLogin()">
+            <!-- Nombre field, shown only in register mode -->
+            <div *ngIf="isRegisterMode">
+                <label for="nombreRegister">Nombre:</label>
+                <input type="text" formControlName="nombre" id="nombreRegister" placeholder="Tu Nombre">
+                <div *ngIf="Nombre?.errors && Nombre?.touched">
+                    <p *ngIf="Nombre?.hasError('required')" class="error">
+                        El nombre es obligatorio
+                    </p>
+                </div>
+            </div>
+
             <div>
                 <label for="emailLogin">Email:</label>
                 <input type="email" formControlName="email" id="emailLogin" placeholder="user@proveedor">
@@ -15,12 +26,11 @@
                 <p *ngIf="Email?.hasError('required')" class="error">
                     Campo obligatorio
                 </p>
-            </div>
-            <div> 
-                <p *ngIf="form.get('email')?.hasError('email') && form.get('email')?.touched" class="error">
+                <p *ngIf="Email?.hasError('email')" class="error">
                     Ingresá un correo válido (ej: nombre@dominio.com)
                 </p>
             </div>
+            
             <div>
                 <label for="passwordLogin">Password:</label>
                 <input type="password" formControlName="password" id="passwordLogin">
@@ -30,11 +40,18 @@
                     Campo obligatorio
                 </p>
             </div>
+            
             <div>
                 <button type="submit" [disabled]="form.invalid">
-                    Crear usuario
+                    {{ isRegisterMode ? 'Registrar' : 'Iniciar Sesión' }}
                 </button>
             </div>
         </form>
+
+        <div class="toggle-mode">
+            <button (click)="toggleMode()">
+                {{ isRegisterMode ? '¿Ya tienes cuenta? Inicia Sesión' : '¿No tienes cuenta? Regístrate' }}
+            </button>
+        </div>
     </div>
 </div>

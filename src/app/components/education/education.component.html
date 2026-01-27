@@ -2,30 +2,37 @@
     <details>
         <summary>
             <div class="title-list">
-                <h4>Educacion</h4>
+                <h4>Educación</h4>
                 <i class="fa-solid fa-angle-right arrow"></i>
             </div>
         </summary>
-        <div class="education-item">
-            <div>
-                <div class="title-education">
-                    <h1>Rolling code schooll</h1>
-                </div>
+        <div *ngIf="education && education.length > 0; else noEducation">
+            <div class="education-item" *ngFor="let edu of education">
                 <div>
-                    <p>2024 - 2025</p>
+                    <div class="title-education">
+                        <h1>{{ edu.nombre_institucion }}</h1>
+                    </div>
+                    <div>
+                        <p>{{ edu.fecha_inicio }} - {{ edu.fecha_fin }}</p>
+                    </div>
+                    <div>
+                        <h2>{{ edu.titulo }}</h2>
+                    </div>
+                    <div class="certificated-view" *ngIf="edu.url_titulo">
+                        <a [href]="edu.url_titulo" rel="noopener noreferrer" target="_blank">
+                            <button class="button-certificated">
+                                Ver título
+                            </button>
+                        </a>
+                    </div>
+                    <!-- Display tools for this education entry -->
+                    <app-skills *ngIf="edu.herramientas && edu.herramientas.length > 0"
+                                [skills]="edu.herramientas"></app-skills>
                 </div>
-                <div>
-                    <h2>Full stack developer</h2>
-                </div>
-                <div class="certificated-view">
-                    <a href="https://i.pinimg.com/736x/37/ed/d2/37edd209716245e8f2a141438e9e16b8.jpg" rel="noopener noreferrer" target="_blank">
-                    <button class="button-certificated">
-                        Ver titulo
-                    </button>
-                    </a>
-                </div>
-                <app-tools></app-tools>
             </div>
         </div>
+        <ng-template #noEducation>
+            <p>No hay educación disponible.</p>
+        </ng-template>
     </details>
 </div>

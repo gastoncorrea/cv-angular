@@ -1,1 +1,16 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <a routerLink="/">Mi Currículum</a>
+  </div>
+  <div class="navbar-actions">
+    <button (click)="toggleAuthForms()">
+      {{ showAuthForms ? 'Cerrar Autenticación' : 'Login / Registro' }}
+    </button>
+  </div>
+</nav>
+
+<div *ngIf="showAuthForms" class="auth-forms-container">
+  <app-login-form></app-login-form>
+</div>
+
 <router-outlet></router-outlet>

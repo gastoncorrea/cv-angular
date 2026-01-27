@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { Educacion } from 'src/app/models/education.model'; // Import Educacion
 
 @Component({
   selector: 'app-education',
@@ -6,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./education.component.css']
 })
 export class EducationComponent {
-
+  @Input() education: Educacion[] | undefined; // Now receives data via Input
 }

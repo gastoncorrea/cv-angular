@@ -52,4 +52,5 @@
     font-style: normal;
     line-height: 1.5;
     font-family: 'Vend Sans', sans-serif;
+    text-align: center; /* Changed from justify to center */
 }

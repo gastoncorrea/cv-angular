@@ -1,45 +1,20 @@
-<div class="title">
+<div class="component">
+    <div class="title">
         <h4>Contactos</h4>
     </div>
-    <div class="iconos-contacto">
-        <div class="contacto">
-            <button class="button-contact">
+    <div class="iconos-contacto" *ngIf="contacts && contacts.length > 0">
+        <div class="contacto" *ngFor="let contact of contacts">
+            <a [href]="contact.url_contacto" target="_blank" class="button-contact">
                 <div class="img-contacto">
-                    <img src="assets\img\image.png" alt="Logo contacto" class="logo-img">
+                    <img [src]="contact.logo_img" [alt]="'Logo ' + contact.nombre" class="logo-img">
                 </div>
                 <div class="nombre-contacto">
-                    <span >Whatsapp</span>
+                    <span>{{ contact.nombre }}</span>
                 </div>
-            </button>
-        </div>
-        <div class="contacto">
-            <button class="button-contact">
-                <div class="img-contacto">
-                    <img src="assets\img\gmail.png" alt="Logo Gmail" class="logo-img">
-                </div>
-                <div class="nombre-contacto">
-                    <span >Gmail</span>
-                </div>
-            </button>
-        </div>
-        <div class="contacto">
-            <button class="button-contact">
-                <div class="img-contacto">
-                    <img src="assets\img\linkedin.png" alt="Logo contacto" class="logo-img">
-                </div>
-                <div class="nombre-contacto">
-                    <span >Linkedin</span>
-                </div>
-            </button>
-        </div>
-        <div class="contacto">
-            <button class="button-contact">
-                <div class="img-contacto">
-                    <img src="assets\img\image.png" alt="Logo contacto" class="logo-img">
-                </div>
-                <div class="nombre-contacto">
-                    <span >Github</span>
-                </div>
-            </button>
+            </a>
         </div>
     </div>
+    <div *ngIf="!contacts || contacts.length === 0">
+        <p>No hay contactos disponibles.</p>
+    </div>
+</div>

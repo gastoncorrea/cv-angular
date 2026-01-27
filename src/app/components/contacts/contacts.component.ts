@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { Contacto } from 'src/app/models/contact.model'; // Import Contacto
 
 @Component({
   selector: 'app-contacts',
@@ -6,5 +7,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./contacts.component.css']
 })
 export class ContactsComponent {
-
+  @Input() contacts: Contacto[] | undefined; // Now receives data via Input
 }

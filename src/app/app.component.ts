@@ -7,4 +7,9 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'cv-angular';
+  showAuthForms: boolean = false; // New property to control visibility
+
+  toggleAuthForms(): void {
+    this.showAuthForms = !this.showAuthForms;
+  }
 }

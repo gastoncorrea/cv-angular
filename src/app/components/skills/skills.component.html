@@ -6,31 +6,32 @@
                 <i class="fa-solid fa-angle-right arrow"></i>
             </div>
         </summary>
-        <div class="card-list">
-            <div class="card">
-                <div class="skill-img">
-                    <img src="assets\img\spring-logo.png" alt="">
+        <div *ngIf="isLoading" class="loading-message">Cargando habilidades...</div>
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+        <div class="card-list" *ngIf="skillsToDisplay && skillsToDisplay.length > 0; else noSkills">
+            <div class="card" *ngFor="let skill of skillsToDisplay">
+                <!-- If skill.url is an image URL, use it here -->
+                <div class="skill-img" *ngIf="skill.url">
+                    <img [src]="skill.url" [alt]="skill.nombre">
+                </div>
+                <!-- Otherwise, you might display a default icon or initial -->
+                <div class="skill-img" *ngIf="!skill.url">
+                  <!-- Example: Display first letter of skill name or a default icon -->
+                  <span>{{ skill.nombre.charAt(0) }}</span>
                 </div>
                 <div class="skill-description">
-                    <h4>Spring Boot</h4>
-                    <p>1.1.18</p>
-                    <div class="progress-bar">
+                    <h4>{{ skill.nombre }}</h4>
+                    <p *ngIf="skill.version">{{ skill.version }}</p>
+                    <!-- Progress bar would require a 'level' or 'percentage' property in Herramienta -->
+                    <!-- <div class="progress-bar">
                         <div class="fill-bar"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="skill-img">
-                    <img src="assets\img\spring-logo.png" alt="">
-                </div>
-                <div class="skill-description">
-                    <h4>Spring Boot</h4>
-                    <p>1.1.18</p>
-                    <div class="progress-bar">
-                        <div class="fill-bar"></div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
+        <ng-template #noSkills>
+            <p *ngIf="!isLoading">No hay habilidades disponibles.</p>
+        </ng-template>
     </details>
 </div>

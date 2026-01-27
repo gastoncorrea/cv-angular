@@ -1,8 +1,12 @@
 <div class="component">
-    <app-personal-data></app-personal-data>
-    <app-contacts></app-contacts>
-    <app-projects></app-projects>
-    <app-education></app-education>
-    <app-skills></app-skills>
-    <app-login-form></app-login-form>
+    <div *ngIf="isLoading" class="loading-message">Cargando datos personales...</div>
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <ng-container *ngIf="persona && !isLoading">
+        <app-personal-data [personalData]="persona"></app-personal-data>
+        <app-contacts [contacts]="persona.contacto"></app-contacts>
+        <app-projects [projects]="persona.proyectos"></app-projects>
+        <app-education [education]="persona.estudios"></app-education>
+        <app-skills></app-skills> <!-- SkillsComponent will fetch its own data -->
+    </ng-container>
 </div>

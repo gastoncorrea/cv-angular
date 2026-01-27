@@ -1,20 +1,27 @@
-<div class="component personal-data">
+<div *ngIf="personalData" class="component personal-data">
     <div class="personal-img">
-        <img src="assets\img\me.jpg" alt="Imagen de perfil" class="center-img">
+        <img [src]="getFullImageUrl(personalData.imagenUrl)" 
+             [alt]="'Imagen de perfil de ' + (personalData.nombre || 'Usuario')" 
+             class="center-img">
     </div>
     <div class="personal-info">
-        <h1>GASTON EXEQUIEL CORREA</h1>
+        <h1>{{ personalData.nombre }} {{ personalData.apellido }}</h1>
         <h3>PROGRAMMER</h3>
-        <p>35 Años</p>
-    </div>
-    <div class="residencia">
-        <h4>SM de Tucuman - </h4>
-        <h4>Tucuman - </h4>
-        <h4>Argentina</h4>
-    </div>
-    <div class="personal-description">
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequuntur itaque ducimus id deserunt rem odio est
-            tempora iure, corporis dolorem. Veritatis, harum. Ducimus amet impedit cum praesentium, expedita minus quam?
+        <p>
+            {{ calculateAge(personalData.fecha_nacimiento) }} Años
+            <span *ngIf="personalData.num_celular"> | {{ personalData.num_celular }}</span>
         </p>
     </div>
+    <div class="residencia" *ngIf="personalData.residencia && personalData.residencia.length > 0">
+        <ng-container *ngFor="let res of personalData.residencia; let i = index">
+            <h4>{{ res.localidad }} - </h4>
+            <h4>{{ res.provincia }} - </h4>
+            <h4>{{ res.pais }}<span *ngIf="i < personalData.residencia.length - 1"> | </span></h4>
+        </ng-container>
+    </div>
+    <div class="personal-description">
+        <p>{{ personalData.descripcion_mi }}</p>
+    </div>
 </div>
+
+<!-- No need for a separate loading state here, as it's handled by the parent HomeComponent -->

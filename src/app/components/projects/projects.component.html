@@ -2,24 +2,31 @@
     <details>
         <summary>
             <div class="title-list">
-                <h4>Experiencia</h4>
+                <h4>Experiencia (Proyectos)</h4>
                 <i class="fa-solid fa-angle-right arrow"></i>
             </div>
         </summary>
-        <div class="experience-item">
-            <div>
+        <div *ngIf="projects && projects.length > 0; else noProjects">
+            <div class="experience-item" *ngFor="let project of projects">
                 <div>
-                    <h1>CV WEB</h1>
+                    <div>
+                        <h1>{{ project.nombre }}</h1>
+                        <p *ngIf="project.inicio || project.fin">{{ project.inicio }} - {{ project.fin }}</p>
+                    </div>
+                    <div>
+                        <h4>{{ project.descripcion }}</h4>
+                    </div>
+                    <div *ngIf="project.url">
+                        <a [href]="project.url" target="_blank">Ver Proyecto</a>
+                    </div>
+                    <!-- Display tools for this project -->
+                    <app-skills *ngIf="project.herramientas && project.herramientas.length > 0"
+                                [skills]="project.herramientas"></app-skills>
                 </div>
-                <div>
-                    <h4>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate reiciendis totam, labore
-                        ratione
-                        voluptate ut ab fuga hic assumenda earum.
-
-                    </h4>
-                </div>
-                <app-tools></app-tools>
             </div>
         </div>
+        <ng-template #noProjects>
+            <p>No hay proyectos disponibles.</p>
+        </ng-template>
     </details>
 </div>

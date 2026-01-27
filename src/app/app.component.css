@@ -1,0 +1,41 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  padding: 10px 20px;
+  color: white;
+}
+
+.navbar-brand a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.navbar-actions button {
+  background-color: #AB77FF; /* Use a color consistent with global styles */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+}
+
+.navbar-actions button:hover {
+  background-color: #925cd6;
+}
+
+.auth-forms-container {
+  position: fixed; /* Or absolute, depending on desired behavior */
+  top: 60px; /* Adjust based on navbar height */
+  right: 20px;
+  z-index: 1000; /* Ensure it's above other content */
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
