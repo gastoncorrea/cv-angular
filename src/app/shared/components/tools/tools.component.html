@@ -2,26 +2,24 @@
     <details>
         <summary>
             <div class="tools-view summary-tools">
-                <span>Herramientas</span>
+                <span>Tools Used</span>
             </div>
         </summary>
-        <div class="card-list">
-            <div class="card">
+        <div *ngIf="tools && tools.length > 0; else noTools" class="card-list">
+            <div class="card" *ngFor="let tool of tools">
                 <div class="tools-img">
-                    <img src="https://i.pinimg.com/736x/6b/e5/22/6be522d7e6912b78520d1a20db5d9613.jpg" alt="">
+                    <!-- Assuming tool object might have an image property, otherwise use a default -->
+                    <img src="assets/img/image.png" alt="Tool Image">
                 </div>
                 <div class="tools-description">
-                    <h4>Spring Boot</h4>
-                    <p>1.1.18</p>
-                    <p>En el boton de abajo podes ver el repositorio</p>
-                    <div class="button-tools">
-                        <a href="https://github.com/gastoncorrea/cv-angular.git" target="_blank"
-                            rel="noopener noreferrer">
-                            Ver
-                        </a>
-                    </div>
+                    <h4>{{ tool.nombre }}</h4>
+                    <p>{{ tool.version }}</p>
+                    <!-- Removed repository link as it was part of the hardcoded example and not dynamic data -->
                 </div>
             </div>
         </div>
+        <ng-template #noTools>
+            <p>No hay herramientas disponibles.</p>
+        </ng-template>
     </details>
 </div>
