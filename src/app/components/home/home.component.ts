@@ -31,6 +31,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.persona = data;
         this.isLoading = false;
         console.log('Datos de Persona recibidos en HomeComponent:', data); // Added console log
+        console.log('Datos de Contactos recibidos en HomeComponent:', data.contactos); // Added console log
       },
       error: (error) => {
         this.errorMessage = `Error al cargar los datos personales: ${error.message}`;

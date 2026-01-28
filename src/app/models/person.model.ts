@@ -16,7 +16,7 @@ export interface Persona {
     residencias?: Residencia[]; // Array of Residencia
     estudios?: Educacion[]; // Array of Educacion
     proyectos?: Proyecto[]; // Array of Proyecto
-    contacto?: Contacto[]; // Array of Contacto
+    contactos?: Contacto[]; // Array of Contacto
 }
 
 // PersonaDto for PUT operations

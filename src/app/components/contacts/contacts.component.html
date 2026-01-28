@@ -6,7 +6,7 @@
         <div class="contacto" *ngFor="let contact of contacts">
             <a [href]="contact.url_contacto" target="_blank" class="button-contact">
                 <div class="img-contacto">
-                    <img [src]="contact.logo_img" [alt]="'Logo ' + contact.nombre" class="logo-img">
+                    <img [src]="getFullImageUrl(contact.logo_img)" [alt]="'Logo ' + contact.nombre" class="logo-img">
                 </div>
                 <div class="nombre-contacto">
                     <span>{{ contact.nombre }}</span>
