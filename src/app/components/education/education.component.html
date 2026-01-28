@@ -1,38 +1,43 @@
 <div class="component">
-    <details>
+    <details open>
         <summary>
             <div class="title-list">
                 <h4>Educación</h4>
                 <i class="fa-solid fa-angle-right arrow"></i>
             </div>
         </summary>
-        <div *ngIf="education && education.length > 0; else noEducation">
-            <div class="education-item" *ngFor="let edu of education">
-                <div>
-                    <div class="title-education">
-                        <h1>{{ edu.nombre_institucion }}</h1>
-                    </div>
+        <div *ngIf="isLoading" class="loading-message">Cargando datos de educación...</div>
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+        
+        <ng-container *ngIf="!isLoading && !errorMessage">
+            <div *ngIf="education && education.length > 0; else noEducation">
+                <div class="education-item" *ngFor="let edu of education">
                     <div>
-                        <p>{{ edu.fecha_inicio }} - {{ edu.fecha_fin }}</p>
+                        <div class="title-education">
+                            <h1>{{ edu.nombre_institucion }}</h1>
+                        </div>
+                        <div>
+                            <p>{{ edu.fecha_inicio }} - {{ edu.fecha_fin }}</p>
+                        </div>
+                        <div>
+                            <h2>{{ edu.titulo }}</h2>
+                        </div>
+                        <div class="certificated-view" *ngIf="edu.url_titulo">
+                            <a [href]="edu.url_titulo" rel="noopener noreferrer" target="_blank">
+                                <button class="button-certificated">
+                                    Ver título
+                                </button>
+                            </a>
+                        </div>
+                        <!-- Display tools for this education entry -->
+                        <app-skills *ngIf="edu.herramientas && edu.herramientas.length > 0"
+                                    [skills]="edu.herramientas"></app-skills>
                     </div>
-                    <div>
-                        <h2>{{ edu.titulo }}</h2>
-                    </div>
-                    <div class="certificated-view" *ngIf="edu.url_titulo">
-                        <a [href]="edu.url_titulo" rel="noopener noreferrer" target="_blank">
-                            <button class="button-certificated">
-                                Ver título
-                            </button>
-                        </a>
-                    </div>
-                    <!-- Display tools for this education entry -->
-                    <app-skills *ngIf="edu.herramientas && edu.herramientas.length > 0"
-                                [skills]="edu.herramientas"></app-skills>
                 </div>
             </div>
-        </div>
-        <ng-template #noEducation>
-            <p>No hay educación disponible.</p>
-        </ng-template>
+            <ng-template #noEducation>
+                <p>No hay educación disponible.</p>
+            </ng-template>
+        </ng-container>
     </details>
 </div>
