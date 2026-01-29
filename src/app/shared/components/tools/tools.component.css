@@ -41,7 +41,11 @@
     background-color: #FFFFFF;
 }
 .tools-img {
-    width: 10%;
+    width: 60px; /* Fixed width for consistency */
+    height: 60px; /* Fixed height for consistency */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .tools-img img {
