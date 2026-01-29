@@ -72,6 +72,8 @@ export class SkillsComponent implements OnInit, OnDestroy {
       return `${this.backendUrl}${relativeUrl}`;
     }
     return 'assets/img/icono-de-herramienta-logo.webp'; // Return default image if no valid logo URL
+  }
+
   processSkillsData(): void {
     const toolUsageMap = new Map<number | string, { herramienta: Herramienta, count: number }>();
     let totalToolUsages = 0;
