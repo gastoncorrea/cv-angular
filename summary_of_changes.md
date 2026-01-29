@@ -53,3 +53,38 @@ This document summarizes the significant modifications made to the project.
 *   **`src/assets/img/default-tool.svg`**:
     *   A placeholder SVG file was initially created for a default tool icon.
     *   This file was subsequently deleted as the decision was made to use Font Awesome icons directly for the default fallback.
+
+### New Changes (Session Summary)
+
+#### 1. Default Image Implementation for various Components
+
+*   **`ToolsComponent`**:
+    *   Updated `tools.component.ts`'s `getFullImageUrl` method to return `assets/img/icono-de-herramienta-logo.webp` as the default image when `tool.logo` is null or empty.
+    *   Simplified `tools.component.html` to always render an `<img>` tag, relying on `getFullImageUrl` to provide a valid source.
+
+*   **`SkillsComponent`**:
+    *   Modified `skills.component.ts` to include `backendUrl` and a `getFullImageUrl` method, returning `assets/img/icono-de-herramienta-logo.webp` as the default.
+    *   Updated `skills.component.html` to use `getFullImageUrl(skill.logo)` for the image source and added a conditional link for `skill.url`.
+
+*   **`EducationComponent`**:
+    *   Added `backendUrl` and a `getFullImageUrl` method to `education.component.ts`, returning `assets/img/logo_default_education.jpg` as the default for institution logos.
+    *   Modified `education.component.html` to display the institution's logo using `getFullImageUrl(edu.logo_imagen)`.
+    *   Added CSS rules to `education.component.css` for `.institution-logo` and `.title-education` to properly display and align the new logo.
+
+*   **`ContactsComponent`**:
+    *   Updated `contacts.component.ts`'s `getFullImageUrl` method to return `assets/img/contact-default-image.png` as the default image for contact logos when `contact.logo_img` is null or empty.
+
+#### 2. `ProjectsComponent` Refactoring and Default Image
+
+*   **`projects.component.ts`**:
+    *   Refactored to fetch its own data using `ProyectoService.getProyectoByPersonaId(1)`.
+    *   Removed the `@Input() projects` property.
+    *   Added `isLoading`, `errorMessage`, and `projectsSubscription` properties for state management.
+    *   Implemented a `getFullImageUrl` method, returning `assets/img/icono-de-proyecto-default.webp` as the default for project logos.
+*   **`project.model.ts`**: Added a `logo?: string;` property to the `Proyecto` interface to accommodate project images.
+*   **`projects.component.html`**:
+    *   Removed the `[projects]="persona.proyectos"` binding from the `<app-projects>` tag in `src/app/components/home/home.component.html`.
+    *   Updated to display loading/error messages.
+    *   Added an `<img>` tag to display `project.logo` using `getFullImageUrl(project.logo)` with a default fallback.
+    *   Replaced `<app-skills>` with `<app-tools>` and updated the input binding from `[skills]` to `[tools]` for displaying project tools.
+*   **`projects.component.css`**: Added CSS rules for `.project-header` and `.project-logo` to properly display and align the new project logo.
