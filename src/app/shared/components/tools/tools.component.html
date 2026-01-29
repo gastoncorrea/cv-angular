@@ -8,13 +8,9 @@
         <div *ngIf="tools && tools.length > 0" class="card-list">
             <div class="card" *ngFor="let tool of tools">
                 <div class="tools-img">
-                    <ng-container *ngIf="getFullImageUrl(tool.logo) as imageUrl; else defaultToolIcon">
+                    <ng-container *ngIf="getFullImageUrl(tool.logo) as imageUrl">
                         <img [src]="imageUrl" [alt]="tool.nombre || 'Tool Image'">
                     </ng-container>
-                    <ng-template #defaultToolIcon>
-                        <!-- Add Font Awesome icon classes here, e.g., <i class="fas fa-wrench fa-3x"></i> -->
-                        <i class="fa-solid fa-screwdriver-wrench fa-5x"></i>
-                    </ng-template>
                 </div>
                 <div class="tools-description">
                     <h4>{{ tool.nombre }}</h4>
