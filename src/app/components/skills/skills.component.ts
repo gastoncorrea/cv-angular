@@ -1,7 +1,10 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Herramienta } from 'src/app/models/tools.model'; // Import Herramienta
-import { HerramientaService } from 'src/app/core/services/tool.service'; // Import HerramientaService
-import { Subscription } from 'rxjs';
+import { Proyecto } from 'src/app/models/project.model'; // Import Proyecto
+import { Educacion } from 'src/app/models/education.model'; // Import Educacion
+import { ProyectoService } from 'src/app/core/services/project.service'; // Import ProyectoService
+import { EducacionService } from 'src/app/core/services/education.service'; // Import EducacionService
+import { Subscription, forkJoin } from 'rxjs'; // Import forkJoin
 import { environment } from 'src/environments/environment'; // Import environment
 
 @Component({
@@ -9,69 +12,54 @@ import { environment } from 'src/environments/environment'; // Import environmen
   templateUrl: './skills.component.html',
   styleUrls: ['./skills.component.css']
 })
-export class SkillsComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() skills: Herramienta[] | undefined; // Input for specific skills (from project/education)
-  globalSkills: Herramienta[] | undefined; // To store all skills if fetched globally
+export class SkillsComponent implements OnInit, OnDestroy {
+  allProjects: Proyecto[] = [];
+  allEducation: Educacion[] = [];
+  skillsWithProgress: { herramienta: Herramienta, usageCount: number, percentage: number }[] = [];
 
   isLoading: boolean = false;
   errorMessage: string | undefined;
-  private skillsSubscription: Subscription | undefined;
+  private dataSubscription: Subscription | undefined;
+  private readonly PUBLIC_PERSONA_ID = 1; // Assuming a fixed ID for the public persona profile
   backendUrl: string; // Declare backendUrl property
 
-  constructor(private herramientaService: HerramientaService) {
+  constructor(
+    private proyectoService: ProyectoService,
+    private educacionService: EducacionService
+  ) {
     this.backendUrl = environment.backendUrl; // Initialize in constructor
   }
 
   ngOnInit(): void {
-    // If no specific skills are provided as input, fetch all global skills
-    if (!this.skills && (!this.globalSkills || this.globalSkills.length === 0)) {
-      this.loadGlobalSkills();
-    }
+    this.loadAllUsageData();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    // React to changes in the 'skills' input property
-    if (changes['skills']) {
-      if (changes['skills'].currentValue && changes['skills'].currentValue.length > 0) {
-        // If specific skills are provided via input, use them and stop any global loading
-        this.globalSkills = undefined; // Clear global skills if specific ones are provided
-        if (this.skillsSubscription) {
-          this.skillsSubscription.unsubscribe();
-          this.skillsSubscription = undefined;
-        }
-        this.isLoading = false;
-      } else if (!changes['skills'].currentValue && (!this.globalSkills || this.globalSkills.length === 0)) {
-        // If skills input is cleared (or was empty) and no global skills are loaded, load global skills
-        this.loadGlobalSkills();
-      }
-    }
-  }
-
-  loadGlobalSkills(): void {
+  loadAllUsageData(): void {
     this.isLoading = true;
     this.errorMessage = undefined;
-    this.skillsSubscription = this.herramientaService.getAllHerramientas().subscribe({
-      next: (data: Herramienta[]) => {
-        this.globalSkills = data;
+
+    this.dataSubscription = forkJoin([
+      this.proyectoService.getProyectoByPersonaId(this.PUBLIC_PERSONA_ID),
+      this.educacionService.getEducacionByPersonaId(this.PUBLIC_PERSONA_ID)
+    ]).subscribe({
+      next: ([proyectos, educacion]) => {
+        this.allProjects = proyectos;
+        this.allEducation = educacion;
+        this.processSkillsData(); // Process data after fetching
         this.isLoading = false;
       },
       error: (error) => {
-        this.errorMessage = `Error al cargar las herramientas: ${error.message}`;
+        this.errorMessage = `Error al cargar datos de habilidades: ${error.message}`;
         this.isLoading = false;
-        console.error(error);
+        console.error('Error en SkillsComponent al cargar datos:', error);
       }
     });
   }
 
   ngOnDestroy(): void {
-    if (this.skillsSubscription) {
-      this.skillsSubscription.unsubscribe();
+    if (this.dataSubscription) {
+      this.dataSubscription.unsubscribe();
     }
-  }
-
-  // Helper to determine which set of skills to display
-  get skillsToDisplay(): Herramienta[] | undefined {
-    return this.skills && this.skills.length > 0 ? this.skills : this.globalSkills;
   }
 
   // Method to construct the full image URL
@@ -84,5 +72,58 @@ export class SkillsComponent implements OnInit, OnChanges, OnDestroy {
       return `${this.backendUrl}${relativeUrl}`;
     }
     return 'assets/img/icono-de-herramienta-logo.webp'; // Return default image if no valid logo URL
+  processSkillsData(): void {
+    const toolUsageMap = new Map<number | string, { herramienta: Herramienta, count: number }>();
+    let totalToolUsages = 0;
+
+    // Aggregate tools from projects
+    this.allProjects.forEach(proyecto => {
+      proyecto.herramientas?.forEach(herramienta => {
+        if (herramienta.id_herramienta || herramienta.nombre) {
+          const key = herramienta.id_herramienta ?? herramienta.nombre; // Use ID if available, otherwise name
+          totalToolUsages++;
+          if (toolUsageMap.has(key)) {
+            toolUsageMap.get(key)!.count++;
+          } else {
+            toolUsageMap.set(key, { herramienta: herramienta, count: 1 });
+          }
+        }
+      });
+    });
+
+    // Aggregate tools from education
+    this.allEducation.forEach(educacion => {
+      educacion.herramientas?.forEach(herramienta => {
+        if (herramienta.id_herramienta || herramienta.nombre) {
+          const key = herramienta.id_herramienta ?? herramienta.nombre; // Use ID if available, otherwise name
+          totalToolUsages++;
+          if (toolUsageMap.has(key)) {
+            toolUsageMap.get(key)!.count++;
+          } else {
+            toolUsageMap.set(key, { herramienta: herramienta, count: 1 });
+          }
+        }
+      });
+    });
+
+    this.skillsWithProgress = [];
+    if (totalToolUsages > 0) {
+      toolUsageMap.forEach(entry => {
+        const percentage = (entry.count / totalToolUsages) * 100;
+        this.skillsWithProgress.push({
+          herramienta: entry.herramienta,
+          usageCount: entry.count,
+          percentage: parseFloat(percentage.toFixed(2)) // Round to 2 decimal places
+        });
+      });
+    }
+
+    // Sort by percentage (descending) or by name
+    this.skillsWithProgress.sort((a, b) => {
+      if (a.percentage !== b.percentage) {
+        return b.percentage - a.percentage; // Higher percentage first
+      }
+      return a.herramienta.nombre.localeCompare(b.herramienta.nombre); // Alphabetical by name
+    });
   }
 }
