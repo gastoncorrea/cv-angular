@@ -56,6 +56,6 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       }
       return `${this.backendUrl}${relativeUrl}`;
     }
-    return 'assets/img/project_default_image.png'; // Return default image if no valid project image URL
+    return 'assets/img/icono-de-proyecto-default.webp'; // Return default image if no valid project image URL
   }
 }
