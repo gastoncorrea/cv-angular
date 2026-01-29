@@ -88,3 +88,26 @@ This document summarizes the significant modifications made to the project.
     *   Added an `<img>` tag to display `project.logo` using `getFullImageUrl(project.logo)` with a default fallback.
     *   Replaced `<app-skills>` with `<app-tools>` and updated the input binding from `[skills]` to `[tools]` for displaying project tools.
 *   **`projects.component.css`**: Added CSS rules for `.project-header` and `.project-logo` to properly display and align the new project logo.
+
+#### 3. `SkillsComponent` Development and Fixes
+
+*   **`skills.component.ts`**:
+    *   Refactored to independently fetch `Proyecto` and `Educacion` data for the `PUBLIC_PERSONA_ID` using `forkJoin`.
+    *   Removed `@Input() skills`, `globalSkills`, `HerramientaService` injection, `ngOnChanges`, and `loadGlobalSkills`.
+    *   Added `allProjects`, `allEducation`, and `skillsWithProgress` properties to manage fetched and processed data.
+    *   Implemented `loadAllUsageData()` to orchestrate data fetching.
+    *   Implemented `processSkillsData()` to:
+        *   Aggregate all tools from `allProjects` and `allEducation`.
+        *   Calculate the total number of tool usages.
+        *   Determine the usage count for each unique tool.
+        *   Calculate the percentage of usage for each tool relative to the total.
+        *   Populate `skillsWithProgress` with this information, sorted by percentage.
+    *   Kept `backendUrl` and `getFullImageUrl` (using `assets/img/icono-de-herramienta-logo.webp` as default).
+    *   Fixed syntax errors introduced by previous `replace` operations, including a missing closing curly brace for the class.
+*   **`skills.component.html`**:
+    *   Updated to iterate over `skillsWithProgress`.
+    *   Displays the tool image, name, version, and a visual progress bar.
+    *   Shows the calculated percentage and usage count for each tool.
+    *   Includes a link to the tool's URL if available.
+*   **`skills.component.css`**:
+    *   Added styling for `.progress-bar-container`, `.progress-bar`, and `.progress-text` to visually represent the skill progress.
