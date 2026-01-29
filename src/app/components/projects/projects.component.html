@@ -6,11 +6,17 @@
                 <i class="fa-solid fa-angle-right arrow"></i>
             </div>
         </summary>
-        <div *ngIf="projects && projects.length > 0; else noProjects">
-            <div class="experience-item" *ngFor="let project of projects">
-                <div>
-                    <div>
+        <div *ngIf="isLoading" class="loading-message">Cargando datos de proyectos...</div>
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+        <ng-container *ngIf="!isLoading && !errorMessage">
+            <div *ngIf="projects && projects.length > 0; else noProjects">
+                <div class="experience-item" *ngFor="let project of projects">
+                    <div class="project-header">
+                        <img [src]="getFullImageUrl(project.logo)" [alt]="project.nombre || 'Project Logo'" class="project-logo">
                         <h1>{{ project.nombre }}</h1>
+                    </div>
+                    <div>
                         <p *ngIf="project.inicio || project.fin">{{ project.inicio }} - {{ project.fin }}</p>
                     </div>
                     <div>
@@ -24,9 +30,9 @@
                                 [skills]="project.herramientas"></app-skills>
                 </div>
             </div>
-        </div>
-        <ng-template #noProjects>
-            <p>No hay proyectos disponibles.</p>
-        </ng-template>
+            <ng-template #noProjects>
+                <p>No hay proyectos disponibles.</p>
+            </ng-template>
+        </ng-container>
     </details>
 </div>

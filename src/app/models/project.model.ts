@@ -8,6 +8,7 @@ export interface Proyecto {
     url: string;
     inicio: string;
     fin: string;
+    logo?: string; // Added missing logo property
     persona?: any; // Acknowledge persona property, avoid circular dependency
     herramientas?: Herramienta[]; // Added missing herramientas property
 }
