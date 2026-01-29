@@ -2,6 +2,7 @@ import { Component, OnInit, Input, OnChanges, SimpleChanges, OnDestroy } from '@
 import { Herramienta } from 'src/app/models/tools.model'; // Import Herramienta
 import { HerramientaService } from 'src/app/core/services/tool.service'; // Import HerramientaService
 import { Subscription } from 'rxjs';
+import { environment } from 'src/environments/environment'; // Import environment
 
 @Component({
   selector: 'app-skills',
@@ -15,8 +16,11 @@ export class SkillsComponent implements OnInit, OnChanges, OnDestroy {
   isLoading: boolean = false;
   errorMessage: string | undefined;
   private skillsSubscription: Subscription | undefined;
+  backendUrl: string; // Declare backendUrl property
 
-  constructor(private herramientaService: HerramientaService) { }
+  constructor(private herramientaService: HerramientaService) {
+    this.backendUrl = environment.backendUrl; // Initialize in constructor
+  }
 
   ngOnInit(): void {
     // If no specific skills are provided as input, fetch all global skills
@@ -68,5 +72,17 @@ export class SkillsComponent implements OnInit, OnChanges, OnDestroy {
   // Helper to determine which set of skills to display
   get skillsToDisplay(): Herramienta[] | undefined {
     return this.skills && this.skills.length > 0 ? this.skills : this.globalSkills;
+  }
+
+  // Method to construct the full image URL
+  getFullImageUrl(relativeUrl: string | null | undefined): string {
+    if (relativeUrl && relativeUrl.trim() !== '') {
+      // Check if the relativeUrl is already an absolute URL or a data URL
+      if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://') || relativeUrl.startsWith('data:')) {
+        return relativeUrl;
+      }
+      return `${this.backendUrl}${relativeUrl}`;
+    }
+    return 'assets/img/icono-de-herramienta-logo.webp'; // Return default image if no valid logo URL
   }
 }

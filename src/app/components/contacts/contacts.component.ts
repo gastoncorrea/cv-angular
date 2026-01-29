@@ -24,6 +24,6 @@ export class ContactsComponent {
       }
       return `${this.backendUrl}${relativeUrl}`;
     }
-    return 'assets/img/default-contact.png'; // Fallback image for contacts
+    return 'assets/img/contact-default-image.png'; // Fallback image for contacts
   }
 }

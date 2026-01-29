@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Educacion } from 'src/app/models/education.model';
 import { EducacionService } from 'src/app/core/services/education.service';
 import { Subscription } from 'rxjs';
+import { environment } from 'src/environments/environment'; // Import environment
 
 @Component({
   selector: 'app-education',
@@ -14,8 +15,11 @@ export class EducationComponent implements OnInit, OnDestroy {
   errorMessage: string | undefined;
   private educationSubscription: Subscription | undefined;
   private readonly PUBLIC_PERSONA_ID = 1; // Assuming a fixed ID for the public persona profile
+  backendUrl: string; // Declare backendUrl property
 
-  constructor(private educationService: EducacionService) { }
+  constructor(private educationService: EducacionService) {
+    this.backendUrl = environment.backendUrl; // Initialize in constructor
+  }
 
   ngOnInit(): void {
     this.loadEducationData();
@@ -41,5 +45,17 @@ export class EducationComponent implements OnInit, OnDestroy {
     if (this.educationSubscription) {
       this.educationSubscription.unsubscribe();
     }
+  }
+
+  // Method to construct the full image URL
+  getFullImageUrl(relativeUrl: string | null | undefined): string {
+    if (relativeUrl && relativeUrl.trim() !== '') {
+      // Check if the relativeUrl is already an absolute URL or a data URL
+      if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://') || relativeUrl.startsWith('data:')) {
+        return relativeUrl;
+      }
+      return `${this.backendUrl}${relativeUrl}`;
+    }
+    return 'assets/img/logo_default_education.jpg'; // Return default image if no valid logo URL
   }
 }

@@ -11,18 +11,13 @@
 
         <div class="card-list" *ngIf="skillsToDisplay && skillsToDisplay.length > 0; else noSkills">
             <div class="card" *ngFor="let skill of skillsToDisplay">
-                <!-- If skill.url is an image URL, use it here -->
-                <div class="skill-img" *ngIf="skill.url">
-                    <img [src]="skill.url" [alt]="skill.nombre">
-                </div>
-                <!-- Otherwise, you might display a default icon or initial -->
-                <div class="skill-img" *ngIf="!skill.url">
-                  <!-- Example: Display first letter of skill name or a default icon -->
-                  <span>{{ skill.nombre.charAt(0) }}</span>
+                <div class="skill-img">
+                    <img [src]="getFullImageUrl(skill.logo)" [alt]="skill.nombre || 'Skill Image'">
                 </div>
                 <div class="skill-description">
                     <h4>{{ skill.nombre }}</h4>
                     <p *ngIf="skill.version">{{ skill.version }}</p>
+                    <a *ngIf="skill.url" [href]="skill.url" target="_blank" rel="noopener noreferrer">Ver recurso</a>
                     <!-- Progress bar would require a 'level' or 'percentage' property in Herramienta -->
                     <!-- <div class="progress-bar">
                         <div class="fill-bar"></div>

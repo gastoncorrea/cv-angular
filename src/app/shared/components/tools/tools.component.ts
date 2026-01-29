@@ -16,7 +16,7 @@ export class ToolsComponent {
   }
 
   // Method to construct the full image URL
-  getFullImageUrl(relativeUrl: string | null | undefined): string | undefined {
+  getFullImageUrl(relativeUrl: string | null | undefined): string {
     if (relativeUrl && relativeUrl.trim() !== '') {
       // Check if the relativeUrl is already an absolute URL or a data URL
       if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://') || relativeUrl.startsWith('data:')) {
@@ -24,6 +24,6 @@ export class ToolsComponent {
       }
       return `${this.backendUrl}${relativeUrl}`;
     }
-    return undefined; // No valid logo URL, return undefined
+    return 'assets/img/icono-de-herramienta-logo.webp'; // Return default image if no valid logo URL
   }
 }

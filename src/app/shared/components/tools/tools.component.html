@@ -8,9 +8,7 @@
         <div *ngIf="tools && tools.length > 0" class="card-list">
             <div class="card" *ngFor="let tool of tools">
                 <div class="tools-img">
-                    <ng-container *ngIf="getFullImageUrl(tool.logo) as imageUrl">
-                        <img [src]="imageUrl" [alt]="tool.nombre || 'Tool Image'">
-                    </ng-container>
+                    <img [src]="getFullImageUrl(tool.logo)" [alt]="tool.nombre || 'Tool Image'">
                 </div>
                 <div class="tools-description">
                     <h4>{{ tool.nombre }}</h4>
