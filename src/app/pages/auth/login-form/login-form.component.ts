@@ -12,6 +12,8 @@ export class LoginFormComponent implements OnInit { // Implement OnInit
 
   form: FormGroup;
   isRegisterMode = false; // To toggle between login and register forms
+  loginSuccessMessage: string | undefined;
+  loginErrorMessage: string | undefined;
 
   constructor(
     private fb: FormBuilder,
@@ -46,6 +48,8 @@ export class LoginFormComponent implements OnInit { // Implement OnInit
     this.isRegisterMode = !this.isRegisterMode;
     this.setValidatorsForMode();
     this.form.reset(); // Reset form when toggling mode
+    this.loginSuccessMessage = undefined; // Clear messages
+    this.loginErrorMessage = undefined;   // Clear messages
   }
 
   private setValidatorsForMode(): void {
@@ -58,8 +62,12 @@ export class LoginFormComponent implements OnInit { // Implement OnInit
   }
 
   sendLogin(): void {
+    this.loginSuccessMessage = undefined; // Clear previous messages on new attempt
+    this.loginErrorMessage = undefined;   // Clear previous messages on new attempt
+
     if (this.form.invalid) {
       this.form.markAllAsTouched(); // Mark all fields as touched to show validation errors
+      this.loginErrorMessage = 'Por favor, completa todos los campos requeridos.';
       return;
     }
 
@@ -70,15 +78,14 @@ export class LoginFormComponent implements OnInit { // Implement OnInit
       this.authService.register({ email, nombre, password }).subscribe({
         next: (res) => {
           console.log('Registro exitoso', res);
-          // Optionally, auto-login after registration or navigate to login
+          this.loginSuccessMessage = 'Usuario registrado con éxito. Ahora puedes iniciar sesión.';
           this.isRegisterMode = false; // Switch to login mode
           this.setValidatorsForMode();
           this.form.reset();
-          alert('Usuario registrado con éxito. Ahora puedes iniciar sesión.');
         },
         error: (err) => {
           console.error('Error en el registro', err);
-          alert('Error en el registro: ' + (err.error?.message || err.message));
+          this.loginErrorMessage = 'Error en el registro: ' + (err.error?.message || err.message || 'Intenta de nuevo.');
         }
       });
     } else {
@@ -86,11 +93,12 @@ export class LoginFormComponent implements OnInit { // Implement OnInit
       this.authService.login({ email, password }).subscribe({
         next: (res) => {
           console.log('Login exitoso', res);
+          this.loginSuccessMessage = '¡Inicio de sesión exitoso! Redirigiendo...';
           this.router.navigate(['/home']); // Navigate to home or a protected route
         },
         error: (err) => {
           console.error('Error en el login', err);
-          alert('Error en el inicio de sesión: Credenciales inválidas');
+          this.loginErrorMessage = 'Error en el inicio de sesión: Credenciales inválidas o error del servidor.';
         }
       });
     }

@@ -6,6 +6,12 @@
         <div>
             <p>Completa los campos del formulario para {{ isRegisterMode ? 'registrar un nuevo usuario' : 'habilitar el modo de edición' }}</p>
         </div>
+        <div *ngIf="loginSuccessMessage" class="success">
+            <p>{{ loginSuccessMessage }}</p>
+        </div>
+        <div *ngIf="loginErrorMessage" class="error">
+            <p>{{ loginErrorMessage }}</p>
+        </div>
         <form [formGroup]="form" (ngSubmit)="sendLogin()">
             <!-- Nombre field, shown only in register mode -->
             <div *ngIf="isRegisterMode">
