@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { Contacto } from 'src/app/models/contact.model'; // Import Contacto
 import { environment } from 'src/environments/environment'; // Import environment
+import { AuthService } from 'src/app/auth.service'; // Import AuthService
 
 @Component({
   selector: 'app-contacts',
@@ -11,7 +12,9 @@ export class ContactsComponent {
   @Input() contacts: Contacto[] | undefined; // Now receives data via Input
   backendUrl: string; // Declare backendUrl property
 
-  constructor() {
+  constructor(
+    public authService: AuthService // Inject AuthService
+  ) {
     this.backendUrl = environment.backendUrl; // Initialize in constructor
   }
 

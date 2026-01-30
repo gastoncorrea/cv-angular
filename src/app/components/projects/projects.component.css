@@ -1,3 +1,26 @@
+.edit-buttons-container {
+    display: flex;
+    justify-content: flex-end; /* Aligns content to the right */
+    margin-bottom: 10px; /* Space between button and list */
+    margin-top: 10px; /* Added margin-top for separation from title */
+    padding-right: 2%; /* Align with component padding */
+}
+
+.edit-buttons .btn-add {
+    background-color: #AB77FF; /* Example background color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.edit-buttons .btn-add:hover {
+    background-color: #8A5BBF; /* Darker shade on hover */
+}
+
 .experience-item{
     padding: 0% 2%;
     margin: 5% 1%;

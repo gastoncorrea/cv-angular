@@ -2,18 +2,27 @@
     <div class="title">
         <h4>Contactos</h4>
     </div>
-    <div class="iconos-contacto" *ngIf="contacts && contacts.length > 0">
-        <div class="contacto" *ngFor="let contact of contacts">
-            <a [href]="contact.url_contacto" target="_blank" class="button-contact">
-                <div class="img-contacto">
-                    <img [src]="getFullImageUrl(contact.logo_img)" [alt]="'Logo ' + contact.nombre" class="logo-img">
-                </div>
-                <div class="nombre-contacto">
-                    <span>{{ contact.nombre }}</span>
-                </div>
-            </a>
+    <ng-container *ngIf="contacts && contacts.length > 0">
+        <div class="edit-buttons-container">
+            <div class="edit-buttons" *ngIf="authService.isLoggedIn() | async">
+                <button class="btn btn-add">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
         </div>
-    </div>
+        <div class="iconos-contacto">
+            <div class="contacto" *ngFor="let contact of contacts">
+                <a [href]="contact.url_contacto" target="_blank" class="button-contact">
+                    <div class="img-contacto">
+                        <img [src]="getFullImageUrl(contact.logo_img)" [alt]="'Logo ' + contact.nombre" class="logo-img">
+                    </div>
+                    <div class="nombre-contacto">
+                        <span>{{ contact.nombre }}</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </ng-container>
     <div *ngIf="!contacts || contacts.length === 0">
         <p>No hay contactos disponibles.</p>
     </div>

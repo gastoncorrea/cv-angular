@@ -6,6 +6,13 @@
                 <i class="fa-solid fa-angle-right arrow"></i>
             </div>
         </summary>
+        <div class="edit-buttons-container">
+            <div class="edit-buttons" *ngIf="authService.isLoggedIn() | async">
+                <button class="btn btn-add">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+        </div>
         <div *ngIf="isLoading" class="loading-message">Cargando datos de proyectos...</div>
         <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
