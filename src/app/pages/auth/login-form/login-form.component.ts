@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router'; // Import Router
 import { AuthService } from 'src/app/auth.service'; // Import AuthService
@@ -9,6 +9,8 @@ import { AuthService } from 'src/app/auth.service'; // Import AuthService
   styleUrls: ['./login-form.component.css']
 })
 export class LoginFormComponent implements OnInit { // Implement OnInit
+
+  @Output() loginSuccess = new EventEmitter<void>(); // Event emitter for successful login
 
   form: FormGroup;
   isRegisterMode = false; // To toggle between login and register forms
@@ -94,6 +96,7 @@ export class LoginFormComponent implements OnInit { // Implement OnInit
         next: (res) => {
           console.log('Login exitoso', res);
           this.loginSuccessMessage = '¡Inicio de sesión exitoso! Redirigiendo...';
+          this.loginSuccess.emit(); // Emit event on successful login
           this.router.navigate(['/home']); // Navigate to home or a protected route
         },
         error: (err) => {

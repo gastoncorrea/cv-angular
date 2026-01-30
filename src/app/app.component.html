@@ -3,14 +3,17 @@
     <a routerLink="/">Mi Currículum</a>
   </div>
   <div class="navbar-actions">
-    <button (click)="toggleAuthForms()">
+    <button *ngIf="!(authService.isLoggedIn() | async)" (click)="toggleAuthForms()">
       {{ showAuthForms ? 'Cerrar Autenticación' : 'Login / Registro' }}
+    </button>
+    <button *ngIf="authService.isLoggedIn() | async" (click)="logout()">
+      Cerrar Sesión
     </button>
   </div>
 </nav>
 
 <div *ngIf="showAuthForms" class="auth-forms-container">
-  <app-login-form></app-login-form>
+  <app-login-form (loginSuccess)="onLoginSuccess()"></app-login-form>
 </div>
 
 <router-outlet></router-outlet>

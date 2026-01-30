@@ -4,6 +4,7 @@ import { Proyecto } from 'src/app/models/project.model'; // Import Proyecto
 import { Educacion } from 'src/app/models/education.model'; // Import Educacion
 import { ProyectoService } from 'src/app/core/services/project.service'; // Import ProyectoService
 import { EducacionService } from 'src/app/core/services/education.service'; // Import EducacionService
+import { AuthService } from 'src/app/auth.service'; // Import AuthService
 import { Subscription, forkJoin } from 'rxjs'; // Import forkJoin
 import { environment } from 'src/environments/environment'; // Import environment
 
@@ -25,7 +26,8 @@ export class SkillsComponent implements OnInit, OnDestroy {
 
   constructor(
     private proyectoService: ProyectoService,
-    private educacionService: EducacionService
+    private educacionService: EducacionService,
+    private authService: AuthService // Inject AuthService
   ) {
     this.backendUrl = environment.backendUrl; // Initialize in constructor
   }

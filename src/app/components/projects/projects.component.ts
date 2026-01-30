@@ -3,6 +3,7 @@ import { Proyecto } from 'src/app/models/project.model'; // Import Proyecto
 import { ProyectoService } from 'src/app/core/services/project.service';
 import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { AuthService } from 'src/app/auth.service'; // Import AuthService
 
 @Component({
   selector: 'app-projects',
@@ -17,7 +18,10 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   private readonly PUBLIC_PERSONA_ID = 1; // Assuming a fixed ID for the public persona profile
   backendUrl: string; // Declare backendUrl property
 
-  constructor(private proyectoService: ProyectoService) {
+  constructor(
+    private proyectoService: ProyectoService,
+    public authService: AuthService // Inject AuthService
+  ) {
     this.backendUrl = environment.backendUrl; // Initialize in constructor
   }
 

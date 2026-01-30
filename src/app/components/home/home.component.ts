@@ -13,11 +13,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   errorMessage: string | undefined;
   private personaSubscription: Subscription | undefined;
+  private readonly PUBLIC_PERSONA_ID = 1; // Assuming a fixed ID for the public persona profile
 
-  // Assuming a fixed ID for the public persona profile
-  private readonly PUBLIC_PERSONA_ID = 1;
-
-  constructor(private personaService: PersonaService) { }
+  constructor(
+    private personaService: PersonaService,
+  ) { }
 
   ngOnInit(): void {
     this.loadPersonaData();
@@ -30,13 +30,13 @@ export class HomeComponent implements OnInit, OnDestroy {
       next: (data: Persona) => {
         this.persona = data;
         this.isLoading = false;
-        console.log('Datos de Persona recibidos en HomeComponent:', data); // Added console log
-        console.log('Datos de Contactos recibidos en HomeComponent:', data.contactos); // Added console log
+        console.log('Datos de Persona recibidos en HomeComponent:', data);
+        console.log('Datos de Contactos recibidos en HomeComponent:', data.contactos);
       },
       error: (error) => {
         this.errorMessage = `Error al cargar los datos personales: ${error.message}`;
         this.isLoading = false;
-        console.error('Error en HomeComponent al cargar Persona:', error); // Added console log
+        console.error('Error en HomeComponent al cargar Persona:', error);
       }
     });
   }

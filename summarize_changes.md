@@ -1,28 +1,45 @@
-# Resumen de la Implementación del Botón de Login/Registro en la Barra de Navegación
+# Summary of Changes
 
-Para abordar la solicitud de un botón en la barra de navegación para login/registro, se ha optado por integrar y reutilizar el componente `login-form.component` existente, controlando su visibilidad desde el componente raíz de la aplicación.
+This document summarizes the modifications made to the project's codebase.
 
-## Archivos Modificados:
+## 1. `src/app/app.component.html`
+-   **Fix:** Corrected the `*ngIf` condition for the login button to properly negate the observable result.
+    -   **Old:** `<button *ngIf="!authService.isLoggedIn() | async" (click)="toggleAuthForms()">`
+    -   **New:** `<button *ngIf="!(authService.isLoggedIn() | async)" (click)="toggleAuthForms()">`
+-   **Feature:** Added an event listener `(loginSuccess)="onLoginSuccess()"` to the `<app-login-form>` component to automatically close the login form after successful authentication.
 
-1.  **`src/app/app.component.ts`**:
-    *   Se ha añadido una nueva propiedad `showAuthForms: boolean = false;` para controlar la visibilidad del formulario de autenticación.
-    *   Se ha implementado el método `toggleAuthForms(): void` que alterna el valor de `showAuthForms` cada vez que se invoca.
+## 2. `src/app/app.component.ts`
+-   **Feature:** Added a new method `onLoginSuccess()` which sets `this.showAuthForms = false;` to close the authentication forms container when a successful login event is received from the login form.
 
-2.  **`src/app/app.component.html`**:
-    *   Se ha incorporado una **barra de navegación simple (`<nav class="navbar">`)** en la parte superior de la plantilla.
-    *   La barra de navegación incluye:
-        *   Un enlace (`<a>`) con `routerLink="/"Mi Currículum"` para navegar a la página principal.
-        *   Un botón (`<button>`) con un evento `(click)="toggleAuthForms()"` que llama al método en `app.component.ts`. El texto del botón cambia dinámicamente entre "Login / Registro" y "Cerrar Autenticación" según el estado de `showAuthForms`.
-    *   Se ha añadido un contenedor (`<div *ngIf="showAuthForms" class="auth-forms-container">`) que renderiza condicionalmente el componente `<app-login-form>`. Esto significa que el formulario de login/registro solo se mostrará cuando `showAuthForms` sea `true`.
-    *   El `<router-outlet>` permanece al final para la carga de los componentes de ruta.
+## 3. `src/app/auth.service.ts`
+-   **Reverted:** Removed the `id_persona` property from the `AuthTokens` interface.
+-   **Reverted:** Removed the logic for storing and clearing `id_persona` in `localStorage` from `saveTokens` and `clearTokens` methods.
+-   **Reverted:** Removed the `getPersonId()` method.
+    -   This change aligns the service with the new requirement that persona data is publicly accessible and the persona ID is not needed for general data fetching.
 
-3.  **`src/app/app.component.css`**:
-    *   Se han añadido estilos CSS básicos para la nueva barra de navegación (`.navbar`, `.navbar-brand`, `.navbar-actions button`) para asegurar una apariencia coherente.
-    *   Se han definido estilos para el contenedor del formulario de autenticación (`.auth-forms-container`) para posicionarlo (fixed en la parte superior derecha) y darle una apariencia de modal o pop-over.
+## 4. `src/app/components/education/education.component.ts`
+-   **Reverted:** Reintroduced `private readonly PUBLIC_PERSONA_ID = 1;`.
+-   **Reverted:** Modified `loadEducationData()` to use `this.PUBLIC_PERSONA_ID` instead of `authService.getPersonId()` for fetching education data.
+-   **Note:** `AuthService` remains injected as it's used for checking login status (`isLoggedIn()`) in the template.
+    -   This change aligns with the new requirement of publicly accessible persona data.
 
-4.  **`src/app/components/home/home.component.html`**:
-    *   Se ha **eliminado la instancia directa de `<app-login-form></app-login-form>`**. Esto se hizo porque el formulario de login/registro ahora es gestionado globalmente desde `app.component.html` y no necesita estar incrustado directamente en la página de inicio.
+## 5. `src/app/components/home/home.component.ts`
+-   **Reverted:** Reintroduced `private readonly PUBLIC_PERSONA_ID = 1;`.
+-   **Reverted:** Modified `loadPersonaData()` to use `this.PUBLIC_PERSONA_ID` instead of `authService.getPersonId()` for fetching persona data.
+-   **Reverted:** Removed `private authService: AuthService` from the constructor as it's no longer needed for getting the person ID, aligning with the publicly accessible persona data approach.
 
-## Resumen de la Funcionalidad:
+## 6. `src/app/pages/auth/login-form/login-form.component.ts`
+-   **Feature:** Added `@Output() loginSuccess = new EventEmitter<void>();` to emit an event on successful login.
+-   **Feature:** Modified `sendLogin()` to emit `this.loginSuccess.emit();` after a successful login.
 
-Ahora, al hacer clic en el botón "Login / Registro" en la barra de navegación, aparecerá un formulario de autenticación (que maneja tanto el login como el registro gracias a su funcionalidad `toggleMode()`). Este formulario flotará sobre el contenido de la aplicación, proporcionando una experiencia de usuario más integrada. La página de inicio ya no mostrará el formulario de login/registro por defecto, lo que limpia su diseño.
+## 7. `src/app/components/projects/projects.component.ts`
+-   **Reverted:** Reintroduced `private readonly PUBLIC_PERSONA_ID = 1;`.
+-   **Reverted:** Modified `loadProjectData()` to use `this.PUBLIC_PERSONA_ID` instead of `authService.getPersonId()` for fetching project data.
+-   **Note:** `AuthService` remains injected as it's used for checking login status (`isLoggedIn()`) in the template.
+    -   This change aligns with the new requirement of publicly accessible persona data.
+
+## 8. `src/app/components/skills/skills.component.ts`
+-   **Reverted:** Reintroduced `private readonly PUBLIC_PERSONA_ID = 1;`.
+-   **Reverted:** Modified `loadAllUsageData()` to use `this.PUBLIC_PERSONA_ID` instead of `authService.getPersonId()` for fetching project and education data.
+-   **Note:** `AuthService` remains injected as it's used for checking login status (`isLoggedIn()`) in the template.
+    -   This change aligns with the new requirement of publicly accessible persona data.

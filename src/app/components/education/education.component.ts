@@ -3,6 +3,7 @@ import { Educacion } from 'src/app/models/education.model';
 import { EducacionService } from 'src/app/core/services/education.service';
 import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment'; // Import environment
+import { AuthService } from 'src/app/auth.service'; // Import AuthService
 
 @Component({
   selector: 'app-education',
@@ -17,7 +18,10 @@ export class EducationComponent implements OnInit, OnDestroy {
   private readonly PUBLIC_PERSONA_ID = 1; // Assuming a fixed ID for the public persona profile
   backendUrl: string; // Declare backendUrl property
 
-  constructor(private educationService: EducacionService) {
+  constructor(
+    private educationService: EducacionService,
+    public authService: AuthService // Inject AuthService
+  ) {
     this.backendUrl = environment.backendUrl; // Initialize in constructor
   }
 
