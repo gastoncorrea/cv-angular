@@ -18,6 +18,11 @@ export class ContactsComponent {
     this.backendUrl = environment.backendUrl; // Initialize in constructor
   }
 
+  editContact(contact: Contacto): void {
+    console.log('Edit contact:', contact);
+    // Future implementation: Navigate to edit form or open modal
+  }
+
   // Method to construct the full image URL
   getFullImageUrl(relativeUrl: string | null | undefined): string {
     if (relativeUrl) {

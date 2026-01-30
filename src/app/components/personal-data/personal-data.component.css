@@ -3,7 +3,8 @@
     max-width: 100%;
 }
 
-.personal-img {
+.personal-img-container {
+    position: relative; /* Added for absolute positioning of edit photo button */
     max-width: 50%;
     display: block;
     margin: auto;
@@ -19,15 +20,64 @@
 .center-img {
     border-radius: 50%;
     max-width: 100%;
-
-
 }
 
-.personal-info {
+.btn-edit-photo {
+    position: absolute;
+    bottom: 0; /* Position at the bottom of the image */
+    right: 0; /* Position at the right of the image */
+    background-color: #AB77FF; /* Example background color */
+    color: white;
+    border: none;
+    border-radius: 50%; /* Make it circular */
+    padding: 8px 12px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 40px; /* Fixed width for circular button */
+    height: 40px; /* Fixed height for circular button */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-edit-photo:hover {
+    background-color: #8A5BBF; /* Darker shade on hover */
+}
+
+.personal-info-actions {
+    display: flex;
+    justify-content: flex-end; /* Push button to the right */
+    padding: 0 5%; /* Align with text padding */
+    margin-bottom: 10px; /* Space between button and text */
+    margin-top: 20px; /* Added margin-top for spacing */
+}
+
+.personal-info-actions .btn-edit {
+    background: none;
+    border: none;
+    color: #AB77FF; /* Or any prominent color */
+    cursor: pointer;
+    font-size: 1.5em; /* Adjust size as needed */
+    padding: 5px; /* Add padding to make it more clickable */
+}
+
+.personal-info-actions .btn-edit:hover {
+    color: #8A5BBF; /* Darker shade on hover */
+}
+
+.personal-info-text {
     display: block;
-    text-align: center;
-    line-height: 0.8;
-    
+    text-align: center; /* Center the text content */
+    line-height: 1.5; /* Revert line height */
+    margin-top: 10px; /* Space from the button container */
+}
+
+.personal-info-text h1,
+.personal-info-text h3,
+.personal-info-text p {
+    margin: 0; /* Remove default margins */
+    padding: 0; /* Remove default padding */
 }
 
 .residencia {

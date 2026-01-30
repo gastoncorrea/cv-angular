@@ -29,6 +29,11 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     this.loadProjectData();
   }
 
+  editProject(project: Proyecto): void {
+    console.log('Edit project:', project);
+    // Future implementation: Navigate to edit form or open modal
+  }
+
   loadProjectData(): void {
     this.isLoading = true;
     this.errorMessage = undefined;

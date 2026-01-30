@@ -19,6 +19,9 @@
         <ng-container *ngIf="!isLoading && !errorMessage">
             <div *ngIf="education && education.length > 0; else noEducation">
                 <div class="education-item" *ngFor="let edu of education">
+                    <button class="btn btn-edit" *ngIf="authService.isLoggedIn() | async" (click)="editEducation(edu)">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
                     <div>
                         <div class="title-education">
                             <img [src]="getFullImageUrl(edu.logo_imagen)" [alt]="edu.nombre_institucion || 'Institution Logo'" class="institution-logo">

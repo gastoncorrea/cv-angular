@@ -28,8 +28,26 @@
     justify-content: space-around;   
 }
 .contacto{
+    position: relative; /* Needed for absolute positioning of edit button */
     display: flex;
     max-width: 20%; 
+}
+
+.contacto .btn-edit {
+    position: absolute;
+    top: 5px; /* Adjust as needed */
+    right: 5px; /* Adjust as needed */
+    background: none;
+    border: none;
+    color: #AB77FF; /* Or any prominent color */
+    cursor: pointer;
+    font-size: 1em; /* Adjust size as needed */
+    padding: 0;
+    z-index: 10; /* Ensure button is above other content */
+}
+
+.contacto .btn-edit:hover {
+    color: #8A5BBF; /* Darker shade on hover */
 }
 
 .img-contacto{

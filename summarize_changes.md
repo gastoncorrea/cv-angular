@@ -49,25 +49,50 @@ This document summarizes the modifications made to the project's codebase.
 ## Recent Changes
 
 ## 1. `src/app/app-routing.module.ts`
-   - **Fix:** Re-added the `/home` route that renders the `HomeComponent`. This fixes the `NG04002: Cannot match any routes. URL Segment: 'home'` error that occurred after a successful login.
+   - **Fix:** Re-added the `/home` route that renders the `HomeComponent`. This fixes the `NG04002: Cannot match any routes` error.
 
-## 2. `src/app/components/contacts/contacts.component.ts`
-   - **Feature:** Injected `AuthService` into the constructor and made it public to allow authentication-based features in the template.
+## 2. `src/app/components/personal-data/personal-data.component.ts`
+   - **Feature:** Injected `AuthService` into the constructor and made it public for conditional display of edit buttons.
+   - **Fix:** Added a placeholder `editPersona(): void` method.
+   - **Feature:** Added a placeholder `editPhoto(): void` method for the new edit photo button.
 
-## 3. `src/app/components/contacts/contacts.component.html`
-   - **Feature:** Added an 'add' button to the contacts component. This button is only visible when a user is logged in (`*ngIf="authService.isLoggedIn() | async"`).
+## 3. `src/app/components/personal-data/personal-data.component.html`
+   - **Feature:** Added an "edit photo" button (`.btn-edit-photo`) next to the profile image, visible only when logged in.
+   - **Feature/Fix:** Restructured the layout to place the main "edit record" button (`.btn-edit`) in a separate container (`.personal-info-actions`) above the text, aligned to the right. The personal text information (`h1`, `h3`, `p`) is now in a centered container (`.personal-info-text`).
 
-## 4. `src/app/components/contacts/contacts.component.css`
-   - **Feature:** Added CSS rules for `.edit-buttons-container` and `.edit-buttons .btn-add` to style the new edit button.
+## 4. `src/app/components/personal-data/personal-data.component.css`
+   - **Feature:** Added CSS for `.personal-img-container` (relative positioning) and `.btn-edit-photo` (absolute positioning, circular shape).
+   - **Feature/Fix:** Reworked CSS for `.personal-info-actions`, `.personal-info-text` to achieve the desired layout: text centered, edit button above and to the right.
+   - **Usability:** Increased `font-size` to `1.5em` and added `padding: 5px;` to `.personal-info-actions .btn-edit`.
+   - **Spacing:** Added `margin-top: 10px;` to `.personal-info-actions`.
+   - **Readability:** Changed `line-height` for `.personal-info-text` to `1.5`.
 
-## 5. `src/app/components/education/education.component.html`
-   - **Feature:** Added an 'add' button to the education component. This button is only visible when a user is logged in (`*ngIf="authService.isLoggedIn() | async"`).
+## 5. `src/app/components/contacts/contacts.component.ts`
+   - **Feature:** Added a placeholder `editContact(contact: Contacto): void` method.
 
-## 6. `src/app/components/education/education.component.css`
-   - **Feature:** Added CSS rules for `.edit-buttons-container` and `.edit-buttons .btn-add` to style the new edit button.
+## 6. `src/app/components/contacts/contacts.component.html`
+   - **Feature:** Added an edit button (`.btn-edit`) to each contact record, visible only when logged in.
 
-## 7. `src/app/components/projects/projects.component.html`
-   - **Feature:** Added an 'add' button to the projects component. This button is only visible when a user is logged in (`*ngIf="authService.isLoggedIn() | async"`).
+## 7. `src/app/components/contacts/contacts.component.css`
+   - **Feature:** Added CSS for `.btn-edit` for contacts, including positioning and styling.
+   - **Fix:** Modified `.contacto` to `position: relative;` for correct edit button positioning.
 
-## 8. `src/app/components/projects/projects.component.css`
-   - **Feature:** Added CSS rules for `.edit-buttons-container` and `.edit-buttons .btn-add` to style the new edit button.
+## 8. `src/app/components/education/education.component.ts`
+   - **Feature:** Added a placeholder `editEducation(education: Educacion): void` method.
+
+## 9. `src/app/components/education/education.component.html`
+   - **Feature:** Added an edit button (`.btn-edit`) to each education record, visible only when logged in.
+
+## 10. `src/app/components/education/education.component.css`
+    - **Feature:** Added CSS for `.btn-edit` for education, including positioning and styling.
+    - **Fix:** Modified `.education-item` to `position: relative;` for correct edit button positioning.
+
+## 11. `src/app/components/projects/projects.component.ts`
+    - **Feature:** Added a placeholder `editProject(project: Proyecto): void` method.
+
+## 12. `src/app/components/projects/projects.component.html`
+    - **Feature:** Added an edit button (`.btn-edit`) to each project record, visible only when logged in.
+
+## 13. `src/app/components/projects/projects.component.css`
+    - **Feature:** Added CSS for `.btn-edit` for projects, including positioning and styling.
+    - **Fix:** Modified `.experience-item` to `position: relative;` for correct edit button positioning.

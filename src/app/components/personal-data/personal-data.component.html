@@ -1,10 +1,20 @@
 <div *ngIf="personalData" class="component personal-data">
-    <div class="personal-img">
+    <div class="personal-img-container">
         <img [src]="getFullImageUrl(personalData.imagenUrl)" 
              [alt]="'Imagen de perfil de ' + (personalData.nombre || 'Usuario')" 
              class="center-img">
+        <button class="btn btn-edit-photo" *ngIf="authService.isLoggedIn() | async" (click)="editPhoto()">
+            <i class="fa-solid fa-camera"></i>
+        </button>
     </div>
-    <div class="personal-info">
+    
+    <div class="personal-info-actions">
+        <button class="btn btn-edit" *ngIf="authService.isLoggedIn() | async" (click)="editPersona()">
+            <i class="fa-solid fa-pencil"></i>
+        </button>
+    </div>
+
+    <div class="personal-info-text">
         <h1>{{ personalData.nombre }} {{ personalData.apellido }}</h1>
         <h3>PROGRAMMER</h3>
         <p>
