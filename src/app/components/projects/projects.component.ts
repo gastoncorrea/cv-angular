@@ -34,6 +34,11 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     // Future implementation: Navigate to edit form or open modal
   }
 
+  deleteProject(project: Proyecto): void {
+    console.log('Delete project:', project);
+    // Future implementation: Confirmation dialog and then call service to delete
+  }
+
   loadProjectData(): void {
     this.isLoading = true;
     this.errorMessage = undefined;

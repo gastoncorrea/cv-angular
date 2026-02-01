@@ -12,9 +12,6 @@
         </div>
         <div class="iconos-contacto">
             <div class="contacto" *ngFor="let contact of contacts">
-                <button class="btn btn-edit" *ngIf="authService.isLoggedIn() | async" (click)="editContact(contact)">
-                    <i class="fa-solid fa-pencil"></i>
-                </button>
                 <a [href]="contact.url_contacto" target="_blank" class="button-contact">
                     <div class="img-contacto">
                         <img [src]="getFullImageUrl(contact.logo_img)" [alt]="'Logo ' + contact.nombre" class="logo-img">
@@ -23,6 +20,14 @@
                         <span>{{ contact.nombre }}</span>
                     </div>
                 </a>
+                <div class="crud-buttons" *ngIf="authService.isLoggedIn() | async">
+                    <button class="btn btn-edit" (click)="editContact(contact)">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                    <button class="btn btn-delete" (click)="deleteContact(contact)">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </ng-container>

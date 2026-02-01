@@ -64,35 +64,47 @@ This document summarizes the modifications made to the project's codebase.
    - **Feature:** Added CSS for `.personal-img-container` (relative positioning) and `.btn-edit-photo` (absolute positioning, circular shape).
    - **Feature/Fix:** Reworked CSS for `.personal-info-actions`, `.personal-info-text` to achieve the desired layout: text centered, edit button above and to the right.
    - **Usability:** Increased `font-size` to `1.5em` and added `padding: 5px;` to `.personal-info-actions .btn-edit`.
-   - **Spacing:** Added `margin-top: 10px;` to `.personal-info-actions`.
+   - **Spacing:** Added `margin-top: 20px;` to `.personal-info-actions` to ensure adequate spacing.
    - **Readability:** Changed `line-height` for `.personal-info-text` to `1.5`.
 
 ## 5. `src/app/components/contacts/contacts.component.ts`
    - **Feature:** Added a placeholder `editContact(contact: Contacto): void` method.
+   - **Feature:** Added a placeholder `deleteContact(contact: Contacto): void` method.
 
 ## 6. `src/app/components/contacts/contacts.component.html`
-   - **Feature:** Added an edit button (`.btn-edit`) to each contact record, visible only when logged in.
+   - **Feature:** Added an edit button (`.btn-edit`) and a delete button (`.btn-delete`) to each contact record, visible only when logged in, grouped in a `.crud-buttons` div.
+   - **Fix:** Corrected the HTML structure to ensure `a.button-contact` comes first, then `div.crud-buttons`, both as direct children of `.contacto`.
 
 ## 7. `src/app/components/contacts/contacts.component.css`
-   - **Feature:** Added CSS for `.btn-edit` for contacts, including positioning and styling.
-   - **Fix:** Modified `.contacto` to `position: relative;` for correct edit button positioning.
+   - **Feature:** Added CSS for `.btn-edit` and `.btn-delete` for contacts, including positioning and styling.
+   - **Fix:** Modified `.contacto` to `display: flex; flex-direction: column; align-items: center;` to stack content and buttons vertically.
+   - **Fix:** Modified `.crud-buttons` to remove `position: absolute;` and instead use `width: 100%; display: flex; justify-content: flex-end;` to align the action buttons to the right.
+   - **Fix:** Changed `color` for `.crud-buttons .btn-delete` and its hover state to match the edit button (`#AB77FF` and `#8A5BBF`).
+   - **Fix:** Added `margin-top: 5px;` to `.crud-buttons` for spacing.
+   - **Fix:** Added `width: 100%;` and `max-width: 100%;` to `.button-contact`.
 
 ## 8. `src/app/components/education/education.component.ts`
    - **Feature:** Added a placeholder `editEducation(education: Educacion): void` method.
+   - **Feature:** Added a placeholder `deleteEducation(education: Educacion): void` method.
 
 ## 9. `src/app/components/education/education.component.html`
-   - **Feature:** Added an edit button (`.btn-edit`) to each education record, visible only when logged in.
+   - **Feature:** Added an edit button (`.btn-edit`) and a delete button (`.btn-delete`) to each education record, visible only when logged in, grouped in a `.crud-buttons` div.
 
 ## 10. `src/app/components/education/education.component.css`
-    - **Feature:** Added CSS for `.btn-edit` for education, including positioning and styling.
-    - **Fix:** Modified `.education-item` to `position: relative;` for correct edit button positioning.
+    - **Feature:** Added CSS for `.btn-edit` and `.btn-delete` for education, including positioning and styling.
+    - **Fix:** Modified `.education-item` to `position: relative;` and added a `.crud-buttons` container with `position: absolute;` and flex properties.
+    - **Usability:** Increased `font-size` to `1.5em` and added `padding: 5px;` to `.education-item .btn-edit`.
+    - **Fix:** Changed `color` for `.education-item .crud-buttons .btn-delete` and its hover state to match the edit button (`#AB77FF` and `#8A5BBF`).
 
 ## 11. `src/app/components/projects/projects.component.ts`
     - **Feature:** Added a placeholder `editProject(project: Proyecto): void` method.
+    - **Feature:** Added a placeholder `deleteProject(project: Proyecto): void` method.
 
 ## 12. `src/app/components/projects/projects.component.html`
-    - **Feature:** Added an edit button (`.btn-edit`) to each project record, visible only when logged in.
+    - **Feature:** Added an edit button (`.btn-edit`) and a delete button (`.btn-delete`) to each project record, visible only when logged in, grouped in a `.crud-buttons` div.
 
 ## 13. `src/app/components/projects/projects.component.css`
-    - **Feature:** Added CSS for `.btn-edit` for projects, including positioning and styling.
-    - **Fix:** Modified `.experience-item` to `position: relative;` for correct edit button positioning.
+    - **Feature:** Added CSS for `.btn-edit` and `.btn-delete` for projects, including positioning and styling.
+    - **Fix:** Modified `.experience-item` to `position: relative;` and added a `.crud-buttons` container with `position: absolute;` and flex properties.
+    - **Usability:** Increased `font-size` to `1.5em` and added `padding: 5px;` to `.experience-item .btn-edit`.
+    - **Fix:** Changed `color` for `.experience-item .crud-buttons .btn-delete` and its hover state to match the edit button (`#AB77FF` and `#8A5BBF`).

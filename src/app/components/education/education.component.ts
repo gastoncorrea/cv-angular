@@ -34,6 +34,11 @@ export class EducationComponent implements OnInit, OnDestroy {
     // Future implementation: Navigate to edit form or open modal
   }
 
+  deleteEducation(education: Educacion): void {
+    console.log('Delete education:', education);
+    // Future implementation: Confirmation dialog and then call service to delete
+  }
+
   loadEducationData(): void {
     this.isLoading = true;
     this.errorMessage = undefined;

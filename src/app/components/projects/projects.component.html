@@ -19,9 +19,14 @@
         <ng-container *ngIf="!isLoading && !errorMessage">
             <div *ngIf="projects && projects.length > 0; else noProjects">
                 <div class="experience-item" *ngFor="let project of projects">
-                    <button class="btn btn-edit" *ngIf="authService.isLoggedIn() | async" (click)="editProject(project)">
-                        <i class="fa-solid fa-pencil"></i>
-                    </button>
+                    <div class="crud-buttons" *ngIf="authService.isLoggedIn() | async">
+                        <button class="btn btn-edit" (click)="editProject(project)">
+                            <i class="fa-solid fa-pencil"></i>
+                        </button>
+                        <button class="btn btn-delete" (click)="deleteProject(project)">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                     <div class="project-header">
                         <img [src]="getFullImageUrl(project.logo)" [alt]="project.nombre || 'Project Logo'" class="project-logo">
                         <h1>{{ project.nombre }}</h1>

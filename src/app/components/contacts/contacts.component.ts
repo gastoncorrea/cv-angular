@@ -23,6 +23,11 @@ export class ContactsComponent {
     // Future implementation: Navigate to edit form or open modal
   }
 
+  deleteContact(contact: Contacto): void {
+    console.log('Delete contact:', contact);
+    // Future implementation: Confirmation dialog and then call service to delete
+  }
+
   // Method to construct the full image URL
   getFullImageUrl(relativeUrl: string | null | undefined): string {
     if (relativeUrl) {
