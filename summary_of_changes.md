@@ -111,3 +111,17 @@ This document summarizes the significant modifications made to the project.
     *   Includes a link to the tool's URL if available.
 *   **`skills.component.css`**:
     *   Added styling for `.progress-bar-container`, `.progress-bar`, and `.progress-text` to visually represent the skill progress.
+### Refactorización del Formulario de Actualización de Persona (PersonaUpdateFormComponent)
+
+Esta serie de cambios alinea el formulario de actualización de Persona con los requisitos del backend y simplifica su interfaz de usuario basándose en las solicitudes del usuario.
+
+*   **persona-update-form.component.ts**:
+    *   Se eliminó toda la lógica relacionada con la gestión, carga o visualización de la imagen de perfil (currentImagenUrl, getFullImageUrl, ackendUrl, etc.).
+    *   El método onSubmit fue simplificado para que se encargue exclusivamente de enviar los datos de texto del formulario (
+ombre, pellido, descripcion_mi, etc.) al endpoint updatePersona del servicio.
+
+*   **persona-update-form.component.html**:
+    *   Se eliminó por completo la sección dedicada a mostrar la imagen de perfil. El formulario ahora solo contiene los campos de entrada para los datos de la persona.
+
+*   **persona-update-form.component.css**:
+    *   Se eliminaron todos los estilos CSS que estaban asociados a la visualización de la imagen de perfil (.profile-image-section, .image-container, .profile-picture-preview), dejando el archivo más limpio y específico para los elementos restantes.

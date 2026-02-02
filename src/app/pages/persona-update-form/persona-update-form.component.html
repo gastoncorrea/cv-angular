@@ -1,0 +1,65 @@
+<div class="component">
+    <div class="center-content">
+        <div>
+            <h3>Editar Información Personal</h3>
+        </div>
+        <div *ngIf="successMessage" class="success">
+            <p>{{ successMessage }}</p>
+        </div>
+        <div *ngIf="errorMessage" class="error">
+            <p>{{ errorMessage }}</p>
+        </div>
+
+        <div *ngIf="isLoading" class="spinner-container">
+            <div class="spinner"></div>
+            <p>Procesando...</p>
+        </div>
+
+        <form [formGroup]="personaForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+            <div>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" formControlName="nombre" placeholder="Tu Nombre">
+                <div *ngIf="nombre?.invalid && (nombre?.dirty || nombre?.touched)" class="error">
+                    <p *ngIf="nombre?.errors?.['required']">El nombre es obligatorio.</p>
+                </div>
+            </div>
+
+            <div>
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" formControlName="apellido" placeholder="Tu Apellido">
+                <div *ngIf="apellido?.invalid && (apellido?.dirty || apellido?.touched)" class="error">
+                    <p *ngIf="apellido?.errors?.['required']">El apellido es obligatorio.</p>
+                </div>
+            </div>
+
+            <div>
+                <label for="descripcion_mi">Sobre Mí:</label>
+                <textarea id="descripcion_mi" formControlName="descripcion_mi" rows="5" placeholder="Una breve descripción sobre ti"></textarea>
+                <div *ngIf="descripcion_mi?.invalid && (descripcion_mi?.dirty || descripcion_mi?.touched)" class="error">
+                    <p *ngIf="descripcion_mi?.errors?.['required']">La descripción es obligatoria.</p>
+                </div>
+            </div>
+
+            <div>
+                <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
+                <input type="date" id="fecha_nacimiento" formControlName="fecha_nacimiento">
+                <div *ngIf="fecha_nacimiento?.invalid && (fecha_nacimiento?.dirty || fecha_nacimiento?.touched)" class="error">
+                    <p *ngIf="fecha_nacimiento?.errors?.['required']">La fecha de nacimiento es obligatoria.</p>
+                </div>
+            </div>
+
+            <div>
+                <label for="num_celular">Número de Celular:</label>
+                <input type="text" id="num_celular" formControlName="num_celular" placeholder="Ej: +5491112345678">
+                <div *ngIf="num_celular?.invalid && (num_celular?.dirty || num_celular?.touched)" class="error">
+                    <p *ngIf="num_celular?.errors?.['required']">El número de celular es obligatorio.</p>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" [disabled]="personaForm.invalid">Actualizar</button>
+                <button type="button" (click)="onCancel()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
