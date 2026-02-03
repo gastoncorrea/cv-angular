@@ -4,7 +4,7 @@
 
     <ng-container *ngIf="persona && !isLoading">
         <app-personal-data [personalData]="persona" (onUploadSuccess)="loadPersonaData()"></app-personal-data>
-        <app-contacts [contacts]="persona.contactos"></app-contacts>
+        <app-contacts [contacts]="persona.contactos" [personaId]="persona.id_persona" (onContactAdded)="loadPersonaData()"></app-contacts>
         <app-projects></app-projects>
         <app-education></app-education>
         <app-skills></app-skills> <!-- SkillsComponent will fetch its own data -->

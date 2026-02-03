@@ -5,11 +5,71 @@
     <ng-container *ngIf="contacts && contacts.length > 0">
         <div class="edit-buttons-container">
             <div class="edit-buttons" *ngIf="authService.isLoggedIn() | async">
-                <button class="btn btn-add">
+                <button class="btn btn-add" (click)="toggleAddContactForm()">
                     <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
         </div>
+
+        <!-- Formulario para agregar un nuevo contacto (integrado: texto + imagen) -->
+        <div *ngIf="showAddContactForm" class="add-form-container">
+            <h3>{{ savedContactId ? 'Subir Logo para Contacto' : 'Agregar Nuevo Contacto' }}</h3>
+            
+            <form #addContactForm="ngForm"> <!-- Single form for the whole process -->
+                <div class="form-group">
+                    <label for="nombre">Nombre de la Red:</label>
+                    <input type="text" id="nombre" [(ngModel)]="newContact.nombre" name="nombre" required [disabled]="!!savedContactId">
+                </div>
+                <div class="form-group">
+                    <label for="url_contacto">URL del Contacto:</label>
+                    <input type="url" id="url_contacto" [(ngModel)]="newContact.url_contacto" name="url_contacto" required [disabled]="!!savedContactId">
+                </div>
+                
+                <!-- Error message for text part -->
+                <div *ngIf="errorMessage" class="alert alert-danger mt-2">
+                    {{ errorMessage }}
+                </div>
+
+                <!-- Image Upload Section (conditionally displayed after text is saved) -->
+                <ng-container *ngIf="savedContactId">
+                    <div class="image-upload-section">
+                        <div class="form-group">
+                            <input type="file" accept="image/*" (change)="onFileSelected($event)" class="form-control-file">
+                        </div>
+                        <div *ngIf="previewUrl" class="image-preview-container">
+                            <img [src]="previewUrl" alt="Vista previa del logo" class="image-preview">
+                        </div>
+                        <div *ngIf="imageErrorMessage" class="alert alert-danger mt-2">
+                            {{ imageErrorMessage }}
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Unified Form Actions -->
+                <div class="form-actions">
+                    <ng-container *ngIf="!savedContactId">
+                        <button type="button" class="btn btn-primary" (click)="onSaveContact()" [disabled]="!addContactForm.valid || isLoading">
+                            <span *ngIf="!isLoading">Guardar Contacto</span>
+                            <span *ngIf="isLoading"><i class="fa fa-spinner fa-spin"></i> Guardando...</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" (click)="cancelAddContact()" [disabled]="isLoading">
+                            Cerrar
+                        </button>
+                    </ng-container>
+
+                    <ng-container *ngIf="savedContactId">
+                        <button type="button" class="btn btn-primary" (click)="onUploadContactImage(savedContactId)" [disabled]="!selectedFile || uploadingImage">
+                            <span *ngIf="!uploadingImage">Subir Logo</span>
+                            <span *ngIf="uploadingImage"><i class="fa fa-spinner fa-spin"></i> Subiendo...</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" (click)="cancelAddContact()" [disabled]="uploadingImage">
+                            Finalizar
+                        </button>
+                    </ng-container>
+                </div>
+            </form>
+        </div>
+
         <div class="iconos-contacto">
             <div class="contacto" *ngFor="let contact of contacts">
                 <a [href]="contact.url_contacto" target="_blank" class="button-contact">
@@ -27,6 +87,29 @@
                     <button class="btn btn-delete" (click)="deleteContact(contact)">
                         <i class="fa-solid fa-trash"></i>
                     </button>
+
+                    <!-- Formulario de subida de imagen para contacto específico -->
+                    <div *ngIf="editingContactId === contact.id_contacto" class="image-upload-form">
+                        <h3>Actualizar Logo</h3>
+                        <div class="form-group">
+                            <input type="file" accept="image/*" (change)="onFileSelected($event)" class="form-control-file">
+                        </div>
+                        <div *ngIf="previewUrl" class="image-preview-container">
+                            <img [src]="previewUrl" alt="Vista previa del logo" class="image-preview">
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn btn-primary" (click)="onUploadContactImage(contact.id_contacto)" [disabled]="!selectedFile || uploadingImage">
+                                <span *ngIf="!uploadingImage">Subir Logo</span>
+                                <span *ngIf="uploadingImage"><i class="fa fa-spinner fa-spin"></i> Subiendo...</span>
+                            </button>
+                            <button class="btn btn-secondary" (click)="cancelImageUpload()" [disabled]="uploadingImage">
+                                Cancelar
+                            </button>
+                        </div>
+                        <div *ngIf="imageErrorMessage" class="alert alert-danger mt-2">
+                            {{ imageErrorMessage }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

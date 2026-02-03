@@ -29,9 +29,9 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error.status === 401) {
-          // Si el token es inválido o expiró, el backend devuelve 401.
-          // Aquí manejamos el logout automático.
+        if (error.status === 401 || error.status === 403) {
+          // Si el token es inválido, expiró, o no tiene permisos (403),
+          // el backend devuelve un error. Aquí manejamos el logout automático.
           this.authService.logout();
           // Opcional: recargar la página para limpiar el estado completamente.
           location.reload();
