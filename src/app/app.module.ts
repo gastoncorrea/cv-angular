@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HTTP_INTERCEPTORS } from '@angular/common/http'; // Import HTTP_INTERCEPTORS
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -16,6 +17,8 @@ import { HttpClientModule } from '@angular/common/http';
 import { FormsModule,ReactiveFormsModule } from '@angular/forms';
 import { ResidenceDataComponent } from './components/residence-data/residence-data.component';
 import { UserComponent } from './components/user/user.component';
+import { PersonaUpdateFormComponent } from './pages/persona-update-form/persona-update-form.component';
+import { AuthInterceptor } from './auth.interceptor'; // Import AuthInterceptor
 
 @NgModule({
   declarations: [
@@ -29,7 +32,8 @@ import { UserComponent } from './components/user/user.component';
     HomeComponent,
     LoginFormComponent,
     UserComponent,
-    ResidenceDataComponent
+    ResidenceDataComponent,
+    PersonaUpdateFormComponent
   ],
   imports: [
     BrowserModule,
@@ -38,7 +42,9 @@ import { UserComponent } from './components/user/user.component';
     FormsModule,
     ReactiveFormsModule
   ],
-  providers: [],
+  providers: [
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

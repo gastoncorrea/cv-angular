@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home.component';
 import { UserComponent } from './components/user/user.component'; // Import UserComponent
+import { PersonaUpdateFormComponent } from './pages/persona-update-form/persona-update-form.component'; // Import PersonaUpdateFormComponent
 
 const routes: Routes = [
   {
@@ -11,6 +12,10 @@ const routes: Routes = [
   {
     path: 'home',
     component: HomeComponent
+  },
+  {
+    path: 'persona/edit/:id',
+    component: PersonaUpdateFormComponent
   },
   {
     path: 'user/create',

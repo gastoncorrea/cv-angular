@@ -104,3 +104,82 @@
     font-family: 'Vend Sans', sans-serif;
     text-align: center; /* Changed from justify to center */
 }
+/* --- Estilos para el formulario de subida de imagen --- */
+.upload-form-container {
+    border: 2px solid #AB77FF44;
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.upload-form-container h3 {
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.upload-form-container .form-group {
+    margin-bottom: 15px;
+}
+
+.upload-form-container .form-control-file {
+    display: inline-block;
+    width: auto;
+}
+
+.image-preview-container {
+    margin-top: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+}
+
+.image-preview {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    object-fit: cover;
+}
+
+.upload-form-container .form-actions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.upload-form-container .form-actions .btn {
+    all: unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+    padding: 10px 20px;
+    background-color: white;
+    border: 3px solid;
+    border-color: #AB77FF44;
+    border-radius: 10px;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+    transition: background-color 0.3s, transform 0.3s;
+    cursor: pointer;
+    width: 45%;
+}
+
+.upload-form-container .form-actions .btn:hover {
+    background-color: #AB77FF44;
+}
+
+.upload-form-container .form-actions .btn:disabled {
+  background-color: #E0D4F7;
+  color: #7E7E7E;
+  cursor: not-allowed;
+  opacity: 0.8;
+  box-shadow: none;
+  transform: none;
+}
+
+.alert-danger {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 15px;
+}

@@ -3,9 +3,36 @@
         <img [src]="getFullImageUrl(personalData.imagenUrl)" 
              [alt]="'Imagen de perfil de ' + (personalData.nombre || 'Usuario')" 
              class="center-img">
-        <button class="btn btn-edit-photo" *ngIf="authService.isLoggedIn() | async" (click)="editPhoto()">
+        <button class="btn btn-edit-photo" *ngIf="authService.isLoggedIn() | async" (click)="toggleUploadForm()">
             <i class="fa-solid fa-camera"></i>
         </button>
+    </div>
+
+    <!-- Formulario de subida de imagen -->
+    <div *ngIf="showUploadForm" class="upload-form-container">
+        <h3>Actualizar foto de perfil</h3>
+        <div class="form-group">
+            <input type="file" accept="image/*" (change)="onFileSelected($event)" class="form-control-file">
+        </div>
+        
+        <!-- Vista previa de la imagen -->
+        <div *ngIf="previewUrl" class="image-preview-container">
+            <img [src]="previewUrl" alt="Vista previa de la imagen" class="image-preview">
+        </div>
+
+        <div class="form-actions">
+            <button class="btn btn-primary" (click)="onUpload()" [disabled]="!selectedFile || isLoading">
+                <span *ngIf="!isLoading">Subir</span>
+                <span *ngIf="isLoading"><i class="fa fa-spinner fa-spin"></i> Subiendo...</span>
+            </button>
+            <button class="btn btn-secondary" (click)="cancelUpload()" [disabled]="isLoading">
+                Cancelar
+            </button>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger mt-2">
+            {{ errorMessage }}
+        </div>
     </div>
     
     <div class="personal-info-actions">
