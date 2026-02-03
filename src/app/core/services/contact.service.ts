@@ -50,7 +50,7 @@ export class ContactService {
    * @returns An Observable of any (generic object on success).
    */
   public deleteContact(id: number): Observable<any> {
-    return this.http.delete<any>(this.URL_API + 'delete/' + id);
+    return this.http.delete(this.URL_API + 'delete/' + id, { responseType: 'text' });
   }
 
   /**

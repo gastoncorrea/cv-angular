@@ -45,3 +45,20 @@
     *   Se eliminaron las propiedades de Flexbox en conflicto de `.iconos-contacto` y `.contacto` donde las reglas de Grid tomaron el control.
     *   Se mantuvo el diseño `display: flex; flex-direction: column; align-items: center;` para el diseño interno de cada elemento `.contacto`.
     *   Se añadieron estilos específicos para la nueva sección de subida de imagen en línea dentro de `add-form-container`.
+
+### 4. Funcionalidad CRUD Completa y Mejoras de Layout para Contactos
+*   **Funcionalidad Completa para Editar Contactos:**
+    *   Se unificó el formulario de "crear" y "editar" en un único componente dinámico.
+    *   Al hacer clic en "editar", el formulario ahora se carga con los datos del contacto seleccionado, permitiendo la modificación de texto.
+    *   Se corrigió un error que bloqueaba los campos de texto al inicio de la edición.
+    *   Se solucionó un fallo que cerraba el formulario después de guardar los cambios de texto, en lugar de mostrar la opción para subir una nueva imagen.
+    *   Se aseguró que el flujo de dos pasos (texto y luego imagen) funcione consistentemente tanto para la creación como para la edición.
+
+*   **Implementación de Eliminar Contacto:**
+    *   Se añadió la lógica para eliminar un contacto, incluyendo una ventana de confirmación para evitar borrados accidentales.
+    *   La lista de contactos ahora se actualiza automáticamente en la interfaz después de una eliminación exitosa.
+    *   Se corrigió un error de parseo `HttpErrorResponse` al especificar que la respuesta del servidor para la eliminación es de tipo `text`.
+
+*   **Re-diseño de la Tarjeta de Contacto:**
+    *   Se reestructuró el HTML y el CSS de cada tarjeta de contacto.
+    *   Los botones de "editar" y "eliminar" ahora se posicionan a la derecha del nombre y el logo, apilados verticalmente, según lo solicitado.
