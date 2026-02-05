@@ -82,4 +82,17 @@ export class ProyectoService {
   public addHerramientasToProyecto(proyectoId: number, herramientas: Herramienta[]): Observable<any> {
     return this.http.post<any>(this.URL_API + 'herramientas', { proyectoId, herramientas });
   }
+
+  /**
+   * Uploads a logo image for a Proyecto.
+   * POST /proyecto/{id}/logo
+   * @param id The ID of the project.
+   * @param file The image file to upload.
+   * @returns An Observable of any (generic object on success).
+   */
+  public uploadProjectImage(id: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.URL_API}${id}/logo`, formData, { responseType: 'text' });
+  }
 }

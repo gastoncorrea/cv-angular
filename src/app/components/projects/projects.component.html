@@ -8,10 +8,78 @@
         </summary>
         <div class="edit-buttons-container">
             <div class="edit-buttons" *ngIf="authService.isLoggedIn() | async">
-                <button class="btn btn-add">
+                <button class="btn btn-add" (click)="toggleAddProjectForm()">
                     <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
+        </div>
+
+        <!-- Unified Form for Adding and Editing a Project -->
+        <div *ngIf="showAddProjectForm" class="add-form-container">
+            <h3>{{ savedProjectId ? 'Subir Logo para Proyecto' : 'Agregar Nuevo Proyecto' }}</h3>
+            
+            <form #addProjectForm="ngForm">
+                <div class="form-group">
+                    <label for="nombre">Nombre del Proyecto:</label>
+                    <input type="text" id="nombre" [(ngModel)]="newProject.nombre" name="nombre" required [disabled]="!!savedProjectId">
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción:</label>
+                    <textarea id="descripcion" [(ngModel)]="newProject.descripcion" name="descripcion" required [disabled]="!!savedProjectId"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="url">URL del Proyecto:</label>
+                    <input type="url" id="url" [(ngModel)]="newProject.url" name="url" [disabled]="!!savedProjectId">
+                </div>
+                <div class="form-group">
+                    <label for="inicio">Fecha de Inicio:</label>
+                    <input type="date" id="inicio" [(ngModel)]="newProject.inicio" name="inicio" required [disabled]="!!savedProjectId">
+                </div>
+                <div class="form-group">
+                    <label for="fin">Fecha de Fin:</label>
+                    <input type="date" id="fin" [(ngModel)]="newProject.fin" name="fin" [disabled]="!!savedProjectId">
+                </div>
+                
+                <div *ngIf="errorMessage" class="alert alert-danger mt-2">
+                    {{ errorMessage }}
+                </div>
+
+                <!-- Image Upload Section (conditionally displayed after text is saved) -->
+                <ng-container *ngIf="savedProjectId">
+                    <div class="image-upload-section">
+                        <div class="form-group">
+                            <input type="file" accept="image/*" (change)="onFileSelected($event)" class="form-control-file">
+                        </div>
+                        <div *ngIf="previewUrl" class="image-preview-container">
+                            <img [src]="previewUrl" alt="Vista previa del logo" class="image-preview">
+                        </div>
+                        <div *ngIf="imageErrorMessage" class="alert alert-danger mt-2">
+                            {{ imageErrorMessage }}
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Unified Form Actions -->
+                <div class="form-actions">
+                    <ng-container *ngIf="!savedProjectId">
+                        <button type="button" class="btn btn-primary" (click)="onSaveProject()" [disabled]="!addProjectForm.valid || isLoading">
+                            <span *ngIf="!isLoading">Guardar Proyecto</span>
+                            <span *ngIf="isLoading"><i class="fa fa-spinner fa-spin"></i> Guardando...</span>
+                        </button>
+                    </ng-container>
+
+                    <ng-container *ngIf="savedProjectId">
+                        <button type="button" class="btn btn-primary" (click)="onUploadProjectImage(savedProjectId)" [disabled]="!selectedFile || uploadingImage">
+                            <span *ngIf="!uploadingImage">Subir Logo</span>
+                            <span *ngIf="uploadingImage"><i class="fa fa-spinner fa-spin"></i> Subiendo...</span>
+                        </button>
+                    </ng-container>
+                    
+                    <button type="button" class="btn btn-secondary" (click)="cancelAddProject()" [disabled]="isLoading || uploadingImage">
+                        {{ savedProjectId ? 'Finalizar' : 'Cancelar' }}
+                    </button>
+                </div>
+            </form>
         </div>
         <div *ngIf="isLoading" class="loading-message">Cargando datos de proyectos...</div>
         <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
@@ -28,7 +96,7 @@
                         </button>
                     </div>
                     <div class="project-header">
-                        <img [src]="getFullImageUrl(project.logo)" [alt]="project.nombre || 'Project Logo'" class="project-logo">
+                        <img [src]="getFullImageUrl(project.logo_proyecto)" [alt]="project.nombre || 'Project Logo'" class="project-logo">
                         <h1>{{ project.nombre }}</h1>
                     </div>
                     <div>
