@@ -1,5 +1,4 @@
-import { Herramienta } from './tools.model'; // Import Herramienta
-// import { Persona } from './person.model'; // Avoid circular dependency for now
+import { Herramienta } from './tools.model';
 
 export interface Educacion {
     id_educacion?: number;
@@ -9,6 +8,17 @@ export interface Educacion {
     fecha_fin: string;
     titulo: string;
     url_titulo: string;
-    persona?: any; // Acknowledge persona property, avoid circular dependency
-    herramientas?: Herramienta[]; // Added missing herramientas property
+    persona?: { id_persona: number };
+    herramientas?: Herramienta[];
+}
+
+export interface EducacionDto {
+    id_educacion?: number;
+    nombre_institucion: string;
+    logo_imagen: string;
+    fecha_inicio: string;
+    fecha_fin: string;
+    titulo: string;
+    url_titulo: string;
+    herramientas?: Herramienta[];
 }

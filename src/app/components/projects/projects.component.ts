@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Proyecto } from 'src/app/models/project.model'; // Import Proyecto
+import { Proyecto, ProyectoDto } from 'src/app/models/project.model'; // Import Proyecto, ProyectoDto
 import { ProyectoService } from 'src/app/core/services/project.service';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs'; // Added Observable
 import { environment } from 'src/environments/environment';
-import { AuthService } from 'src/app/auth.service'; // Import AuthService
+import { AuthService } from 'src/app/auth.service';
+import { HttpErrorResponse } from '@angular/common/http'; // Added HttpErrorResponse
 
 @Component({
   selector: 'app-projects',
@@ -11,27 +12,27 @@ import { AuthService } from 'src/app/auth.service'; // Import AuthService
   styleUrls: ['./projects.component.css']
 })
 export class ProjectsComponent implements OnInit, OnDestroy {
-  projects: Proyecto[] | undefined;
+  projects: Proyecto[] | undefined; // Reverted to Proyecto[]
   isLoading: boolean = false;
   errorMessage: string | undefined;
   private projectsSubscription: Subscription | undefined;
-  private readonly PUBLIC_PERSONA_ID = 1; // Assuming a fixed ID for the public persona profile
-  backendUrl: string; // Declare backendUrl property
+  private readonly PUBLIC_PERSONA_ID = 1;
+  backendUrl: string;
 
-  showAddProjectForm = false; // Control form visibility
+  showAddProjectForm = false;
   newProject: Proyecto = { nombre: '', descripcion: '', url: '', inicio: '', fin: '' };
-  savedProjectId: number | null = null; // For two-step form (text then image)
+  savedProjectId: number | null = null;
   selectedFile: File | null = null;
   previewUrl: string | ArrayBuffer | null = null;
   uploadingImage: boolean = false;
   imageErrorMessage: string = '';
-  editingProjectId: number | null = null; // For future edit functionality
+  editingProjectId: number | null = null;
 
   constructor(
     private proyectoService: ProyectoService,
-    public authService: AuthService // Inject AuthService
+    public authService: AuthService
   ) {
-    this.backendUrl = environment.backendUrl; // Initialize in constructor
+    this.backendUrl = environment.backendUrl;
   }
 
   ngOnInit(): void {
@@ -39,21 +40,50 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   }
 
   editProject(project: Proyecto): void {
-    console.log('Edit project:', project);
-    // Future implementation: Navigate to edit form or open modal
+    if (project.id_proyecto) {
+      this.editingProjectId = project.id_proyecto;
+      // Create a copy to avoid modifying the original object in the list
+      this.newProject = { ...project };
+      this.showAddProjectForm = true; // Open the main form
+      this.cancelImageUpload(); // Reset any lingering image previews
+      this.errorMessage = undefined; // Clear any previous errors
+    } else {
+      console.error('No se puede editar un proyecto sin ID.');
+    }
   }
 
   deleteProject(project: Proyecto): void {
-    console.log('Delete project:', project);
-    // Future implementation: Confirmation dialog and then call service to delete
+    if (!project.id_proyecto) {
+      console.error('No se puede eliminar un proyecto sin ID.');
+      this.errorMessage = 'No se puede eliminar un proyecto sin ID.';
+      return;
+    }
+
+    if (confirm(`¿Estás seguro de que quieres eliminar el proyecto "${project.nombre}"?`)) {
+      this.isLoading = true;
+      this.errorMessage = undefined; // Clear previous error messages
+
+      this.proyectoService.deleteProyecto(project.id_proyecto).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.loadProjectData(); // Refresh the project list
+          console.log(`Proyecto "${project.nombre}" eliminado con éxito.`);
+        },
+        error: (err: HttpErrorResponse) => {
+          this.isLoading = false;
+          this.errorMessage = `Error al eliminar el proyecto "${project.nombre}": ${err.message || 'Error desconocido'}`;
+          console.error('Delete project error:', err);
+        }
+      });
+    }
   }
 
   loadProjectData(): void {
     this.isLoading = true;
     this.errorMessage = undefined;
     this.projectsSubscription = this.proyectoService.getProyectoByPersonaId(this.PUBLIC_PERSONA_ID).subscribe({
-      next: (data: Proyecto[]) => {
-        this.projects = data;
+      next: (data: ProyectoDto[]) => { // Service returns ProyectoDto[]
+        this.projects = data; // Assigned directly, TypeScript's structural typing handles it
         this.isLoading = false;
         console.log('Proyectos cargados desde el servidor:');
         console.log(this.projects);
@@ -78,9 +108,8 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   toggleAddProjectForm(): void {
     this.showAddProjectForm = !this.showAddProjectForm;
     if (!this.showAddProjectForm) {
-      this.cancelAddProject(); // Reset form if closing
+      this.cancelAddProject();
     } else {
-      // Initialize newProject with personaId when opening the form
       this.newProject = { nombre: '', descripcion: '', url: '', inicio: '', fin: '' };
       this.newProject.persona = { id_persona: this.PUBLIC_PERSONA_ID };
       this.savedProjectId = null;
@@ -97,7 +126,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     this.editingProjectId = null;
     this.errorMessage = undefined;
     this.cancelImageUpload();
-    this.loadProjectData(); // Refresh list in case of cancelled create/edit where image was not uploaded
+    this.loadProjectData();
   }
 
   onFileSelected(event: any): void {
@@ -118,31 +147,47 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // Ensure persona ID is set before saving/updating
     if (!this.newProject.persona || !this.newProject.persona.id_persona) {
-      this.errorMessage = 'No se puede agregar el proyecto sin el ID de la persona.';
-      return;
+      this.newProject.persona = { id_persona: this.PUBLIC_PERSONA_ID };
     }
 
     this.isLoading = true;
     this.errorMessage = undefined;
 
-    this.proyectoService.saveProyecto(this.newProject).subscribe({
-      next: (savedProject) => {
+    let saveUpdateObservable: Observable<ProyectoDto>;
+
+    if (this.editingProjectId) {
+      // UPDATE existing project
+      // Ensure id_proyecto is present for update
+      if (this.newProject.id_proyecto === undefined) {
+        this.errorMessage = 'Error: ID de proyecto no definido para actualización.';
+        this.isLoading = false;
+        return;
+      }
+      saveUpdateObservable = this.proyectoService.updateProyecto(this.editingProjectId, this.newProject);
+    } else {
+      // CREATE new project
+      saveUpdateObservable = this.proyectoService.saveProyecto(this.newProject);
+    }
+
+    saveUpdateObservable.subscribe({
+      next: (savedProject: ProyectoDto) => { // Added type ProyectoDto
         this.isLoading = false;
         this.savedProjectId = savedProject.id_proyecto || null;
         this.errorMessage = undefined;
-        // Do NOT call loadProjectData() here. Form should stay open for image upload.
+        // DO NOT emit here or close the form. The form should stay open for the image upload step.
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => { // Added type HttpErrorResponse
         this.isLoading = false;
-        this.errorMessage = `Error al agregar el proyecto: ${err.message}`;
-        console.error('Add project error:', err);
+        this.errorMessage = `Error al ${this.editingProjectId ? 'actualizar' : 'agregar'} el proyecto: ${err.message}`;
+        console.error(`${this.editingProjectId ? 'Update' : 'Add'} project error:`, err);
       }
     });
   }
 
-  onUploadProjectImage(projectId: number | null | undefined): void {
-    if (!this.selectedFile || !projectId) {
+  onUploadProjectLogo(projectId: number | null | undefined): void {
+    if (!this.selectedFile || projectId === null || projectId === undefined) {
       this.imageErrorMessage = 'Por favor, selecciona un archivo y asegúrate de que el proyecto tenga un ID.';
       return;
     }
@@ -150,20 +195,19 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     this.uploadingImage = true;
     this.imageErrorMessage = '';
 
-          this.proyectoService.uploadProjectImage(projectId, this.selectedFile).subscribe({
-            next: () => {
-              this.uploadingImage = false;
-              // Temporarily removed cancelAddProject() to keep form open on success for debugging
-              // this.cancelAddProject(); // Close and reset form, also reloads project data
-              this.loadProjectData(); // Refresh data explicitly
-              this.imageErrorMessage = 'Logo subido con éxito. Puedes cerrar el formulario manualmente.'; // Provide success feedback
-            },
-            error: (err) => {
-              this.uploadingImage = false;
-              this.imageErrorMessage = `Error al subir la imagen del proyecto: ${err.message || 'Error desconocido'}. Consulta la consola para más detalles.`;
-              console.error('ERROR during Project Image Upload:', err); // More prominent error logging
-            }
-          });  }
+    this.proyectoService.uploadProjectLogo(projectId, this.selectedFile).subscribe({
+      next: () => {
+        this.uploadingImage = false;
+        this.loadProjectData();
+        this.cancelAddProject(); // Close the form automatically
+      },
+      error: (err) => {
+        this.uploadingImage = false;
+        this.imageErrorMessage = `Error al subir la imagen del proyecto: ${err.message || 'Error desconocido'}. Consulta la consola para más detalles.`;
+        console.error('ERROR during Project Image Upload:', err);
+      }
+    });
+  }
 
   cancelImageUpload(): void {
     this.selectedFile = null;
@@ -171,22 +215,15 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     this.imageErrorMessage = '';
   }
 
-  // Method to construct the full image URL
   getFullImageUrl(relativeUrl: string | null | undefined): string {
     if (relativeUrl && relativeUrl.trim() !== '') {
-      // Check if the relativeUrl is already an absolute URL or a data URL
       if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://') || relativeUrl.startsWith('data:')) {
         return relativeUrl;
       }
-
-      // Ensure backendUrl ends with a single slash
       let baseUrl = this.backendUrl.endsWith('/') ? this.backendUrl : `${this.backendUrl}/`;
-      
-      // Ensure relativeUrl does not start with a slash (if it does, remove it)
       let cleanRelativeUrl = relativeUrl.startsWith('/') ? relativeUrl.substring(1) : relativeUrl;
-
       return `${baseUrl}${cleanRelativeUrl}`;
     }
-    return 'assets/img/icono-de-proyecto-default.webp'; // Return default image if no valid project image URL
+    return 'assets/img/icono-de-proyecto-default.webp';
   }
 }

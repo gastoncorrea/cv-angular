@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { Observable, BehaviorSubject, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 interface AuthTokens {
   access_token: string;
@@ -13,7 +13,7 @@ interface AuthTokens {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080'; // Asegúrate de que esta URL sea correcta para tu backend
+  private apiUrl = environment.backendUrl;
 
   // BehaviorSubject para gestionar el estado de login del usuario
   private loggedIn = new BehaviorSubject<boolean>(this.hasTokens());
@@ -58,10 +58,7 @@ export class AuthService {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.http.post(`${this.apiUrl}/usuario/save`, user, { headers }).pipe(
       tap((response) => console.log('Registro exitoso:', response)),
-      catchError(error => {
-        console.error('Error en el registro:', error);
-        return throwError(() => new Error('Error al registrar usuario'));
-      })
+      catchError(this.handleError)
     );
   }
 
@@ -79,11 +76,7 @@ export class AuthService {
         this.saveTokens(tokens);
         console.log('Login exitoso. Tokens guardados:', tokens);
       }),
-      catchError(error => {
-        console.error('Error en el login:', error);
-        this.clearTokens(); // Asegúrate de limpiar tokens en caso de error
-        return throwError(() => new Error('Credenciales inválidas o error del servidor'));
-      })
+      catchError(this.handleError)
     );
   }
 
@@ -91,5 +84,28 @@ export class AuthService {
   logout(): void {
     this.clearTokens();
     // Opcional: navegar a la página de login
+  }
+
+  /**
+   * Centralized error handling for HTTP requests.
+   * @param error The HttpErrorResponse object.
+   * @returns An Observable that re-throws a user-friendly error message.
+   */
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'Ocurrió un error desconocido.';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      if (error.status) {
+        errorMessage = `Error del servidor: ${error.status} - ${error.statusText || ''}`;
+      }
+      if (error.error && typeof error.error === 'string') {
+        errorMessage = `Error: ${error.error}`;
+      } else if (error.error && error.error.message) {
+        errorMessage = `Error: ${error.error.message}`;
+      }
+    }
+    console.error('Error en AuthService:', error);
+    return throwError(() => new Error(errorMessage));
   }
 }

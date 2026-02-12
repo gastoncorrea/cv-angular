@@ -5,9 +5,18 @@ export interface Herramienta {
     id_herramienta?: number;
     nombre: string;
     version: string;
-    descripcion?: string; // Optional as per server attributes
-    url?: string; // Optional as per server attributes
-    logo?: string; // Corrected to 'logo' as per server attributes
+    descripcion?: string;
+    url?: string;
+    logo?: string;
     proyectos?: Proyecto[];
     estudios?: Educacion[];
+}
+
+export interface HerramientaDto {
+    id_herramienta: number;
+    nombre: string;
+    version: string;
+    descripcion?: string;
+    url?: string;
+    logo?: string;
 }

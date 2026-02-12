@@ -8,14 +8,82 @@
         </summary>
         <div class="edit-buttons-container">
             <div class="edit-buttons" *ngIf="authService.isLoggedIn() | async">
-                <button class="btn btn-add">
+                <button class="btn btn-add" (click)="toggleAddEducationForm()">
                     <i class="fa-solid fa-plus"></i>
                 </button>
             </div>
         </div>
+
+        <!-- Unified Form for Adding and Editing an Education -->
+        <div *ngIf="showAddEducationForm" class="add-form-container">
+            <h3><ng-container *ngIf="!savedEducationId">{{ editingEducationId ? 'Editar Formación' : 'Agregar Nueva Formación' }}</ng-container><ng-container *ngIf="savedEducationId">{{ editingEducationId ? 'Subir Logo' : 'Subir Logo' }}</ng-container></h3>
+            
+            <form #addEducationForm="ngForm">
+                <div class="form-group">
+                    <label for="nombre_institucion">Nombre de la Institución:</label>
+                    <input type="text" id="nombre_institucion" [(ngModel)]="newEducation.nombre_institucion" name="nombre_institucion" required [disabled]="!!savedEducationId">
+                </div>
+                <div class="form-group">
+                    <label for="titulo">Título:</label>
+                    <textarea id="titulo" [(ngModel)]="newEducation.titulo" name="titulo" required [disabled]="!!savedEducationId"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="url_titulo">URL del Título:</label>
+                    <input type="url" id="url_titulo" [(ngModel)]="newEducation.url_titulo" name="url_titulo" [disabled]="!!savedEducationId">
+                </div>
+                <div class="form-group">
+                    <label for="fecha_inicio">Fecha de Inicio:</label>
+                    <input type="date" id="fecha_inicio" [(ngModel)]="newEducation.fecha_inicio" name="fecha_inicio" required [disabled]="!!savedEducationId">
+                </div>
+                <div class="form-group">
+                    <label for="fecha_fin">Fecha de Fin:</label>
+                    <input type="date" id="fecha_fin" [(ngModel)]="newEducation.fecha_fin" name="fecha_fin" [disabled]="!!savedEducationId">
+                </div>
+                
+                <div *ngIf="errorMessage" class="alert alert-danger mt-2">
+                    {{ errorMessage }}
+                </div>
+
+                <!-- Image Upload Section (conditionally displayed after text is saved) -->
+                <ng-container *ngIf="savedEducationId">
+                    <div class="image-upload-section">
+                        <div class="form-group">
+                            <input type="file" accept="image/*" (change)="onFileSelected($event)" class="form-control-file">
+                        </div>
+                        <div *ngIf="previewUrl" class="image-preview-container">
+                            <img [src]="previewUrl" alt="Vista previa del logo" class="image-preview">
+                        </div>
+                        <div *ngIf="imageErrorMessage" class="alert alert-danger mt-2">
+                            {{ imageErrorMessage }}
+                        </div>
+                    </div>
+                </ng-container>
+
+                <!-- Unified Form Actions -->
+                <div class="form-actions">
+                    <ng-container *ngIf="!savedEducationId">
+                        <button type="button" class="btn btn-primary" (click)="onSaveEducation()" [disabled]="!addEducationForm.valid || isLoading">
+                            <span *ngIf="!isLoading">{{ editingEducationId ? 'Guardar Cambios' : 'Guardar Formación' }}</span>
+                            <span *ngIf="isLoading"><i class="fa fa-spinner fa-spin"></i> Guardando...</span>
+                        </button>
+                    </ng-container>
+
+                    <ng-container *ngIf="savedEducationId">
+                        <button type="button" class="btn btn-primary" (click)="onUploadEducationLogo(savedEducationId)" [disabled]="selectedFile === null || uploadingImage">
+                            <span *ngIf="!uploadingImage">Subir Logo</span>
+                            <span *ngIf="uploadingImage"><i class="fa fa-spinner fa-spin"></i> Subiendo...</span>
+                        </button>
+                    </ng-container>
+                    
+                    <button type="button" class="btn btn-secondary" (click)="cancelAddEducation()" [disabled]="isLoading || uploadingImage">
+                        {{ savedEducationId ? 'Finalizar' : 'Cancelar' }}
+                    </button>
+                </div>
+            </form>
+        </div>
         <div *ngIf="isLoading" class="loading-message">Cargando datos de educación...</div>
         <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-        
+
         <ng-container *ngIf="!isLoading && !errorMessage">
             <div *ngIf="education && education.length > 0; else noEducation">
                 <div class="education-item" *ngFor="let edu of education">

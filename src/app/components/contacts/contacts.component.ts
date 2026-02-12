@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
-import { Contacto } from 'src/app/models/contact.model';
+import { Contacto, ContactoDto } from 'src/app/models/contact.model';
 import { environment } from 'src/environments/environment';
 import { AuthService } from 'src/app/auth.service';
 import { ContactService } from 'src/app/core/services/contact.service';
@@ -10,7 +10,7 @@ import { ContactService } from 'src/app/core/services/contact.service';
   styleUrls: ['./contacts.component.css']
 })
 export class ContactsComponent implements OnInit, OnChanges {
-  @Input() contacts: Contacto[] | undefined;
+  @Input() contacts: Contacto[] | undefined; // Reverted to Contacto[]
   @Input() personaId: number | undefined;
   @Output() onContactAdded = new EventEmitter<void>();
 
@@ -46,11 +46,11 @@ export class ContactsComponent implements OnInit, OnChanges {
     }
   }
 
-  editContact(contact: Contacto): void {
+  editContact(contact: Contacto): void { // Changed type back to Contacto
     if (contact.id_contacto) {
       this.editingContactId = contact.id_contacto;
       // Create a copy to avoid modifying the original object in the list
-      this.newContact = { ...contact }; 
+      this.newContact = { ...contact };
       this.showAddContactForm = true; // Open the main form
       this.cancelImageUpload(); // Reset any lingering image previews
     } else {
@@ -58,7 +58,7 @@ export class ContactsComponent implements OnInit, OnChanges {
     }
   }
   
-  deleteContact(contact: Contacto): void {
+  deleteContact(contact: Contacto): void { // Changed type back to Contacto
     if (!contact.id_contacto) {
       console.error('Cannot delete contact without an ID.');
       this.errorMessage = 'No se puede eliminar un contacto sin ID.';
@@ -121,6 +121,12 @@ export class ContactsComponent implements OnInit, OnChanges {
 
     if (this.editingContactId) {
       // UPDATE existing contact
+      // Ensure id_contacto is present for update
+      if (contactData.id_contacto === undefined) {
+        this.errorMessage = 'Error: ID de contacto no definido para actualización.';
+        this.isLoading = false;
+        return;
+      }
       this.contactService.updateContact(this.editingContactId, contactData).subscribe({
         next: (updatedContact) => {
           this.isLoading = false;
@@ -164,16 +170,16 @@ export class ContactsComponent implements OnInit, OnChanges {
     }
   }
 
-  onUploadContactImage(contactId: number | null | undefined): void {
-    if (!this.selectedFile || !contactId) {
-      this.imageErrorMessage = 'Por favor, selecciona un archivo.';
+  onUploadContactLogo(contactId: number | null | undefined): void {
+    if (!this.selectedFile || contactId === null || contactId === undefined) { // Check for undefined/null explicitly
+      this.imageErrorMessage = 'Por favor, selecciona un archivo y asegúrate de que el contacto tenga un ID.';
       return;
     }
 
     this.uploadingImage = true;
     this.imageErrorMessage = '';
 
-    this.contactService.updateContactImage(contactId, this.selectedFile).subscribe({
+    this.contactService.uploadContactLogo(contactId, this.selectedFile).subscribe({
       next: () => {
         this.uploadingImage = false;
         this.onContactAdded.emit(); // Reload contacts to show new image
@@ -198,10 +204,12 @@ export class ContactsComponent implements OnInit, OnChanges {
       if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://') || relativeUrl.startsWith('data:')) {
         return relativeUrl;
       }
+      // Assuming images are served from /uploads/ relative to the backend URL
+      if (!relativeUrl.startsWith('/uploads/')) {
+        return `${this.backendUrl}/uploads/${relativeUrl}`;
+      }
       return `${this.backendUrl}${relativeUrl}`;
     }
     return 'assets/img/contact-default-image.png';
   }
 }
-
-  

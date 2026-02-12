@@ -60,7 +60,7 @@
 
                     <!-- Actions for Step 2: Image Upload -->
                     <ng-container *ngIf="savedContactId">
-                        <button type="button" class="btn btn-primary" (click)="onUploadContactImage(savedContactId)" [disabled]="!selectedFile || uploadingImage">
+                        <button type="button" class="btn btn-primary" (click)="onUploadContactLogo(savedContactId)" [disabled]="!selectedFile || uploadingImage">
                             <span *ngIf="!uploadingImage">Subir Logo</span>
                             <span *ngIf="uploadingImage"><i class="fa fa-spinner fa-spin"></i> Subiendo...</span>
                         </button>

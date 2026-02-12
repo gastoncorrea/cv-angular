@@ -16,7 +16,7 @@
 
         <!-- Unified Form for Adding and Editing a Project -->
         <div *ngIf="showAddProjectForm" class="add-form-container">
-            <h3>{{ savedProjectId ? 'Subir Logo para Proyecto' : 'Agregar Nuevo Proyecto' }}</h3>
+            <h3><ng-container *ngIf="!savedProjectId">{{ editingProjectId ? 'Editar Proyecto' : 'Agregar Nuevo Proyecto' }}</ng-container><ng-container *ngIf="savedProjectId">{{ editingProjectId ? 'Subir Logo para Proyecto' : 'Subir Logo para Proyecto' }}</ng-container></h3>
             
             <form #addProjectForm="ngForm">
                 <div class="form-group">
@@ -63,13 +63,13 @@
                 <div class="form-actions">
                     <ng-container *ngIf="!savedProjectId">
                         <button type="button" class="btn btn-primary" (click)="onSaveProject()" [disabled]="!addProjectForm.valid || isLoading">
-                            <span *ngIf="!isLoading">Guardar Proyecto</span>
+                            <span *ngIf="!isLoading">{{ editingProjectId ? 'Guardar Cambios' : 'Guardar Proyecto' }}</span>
                             <span *ngIf="isLoading"><i class="fa fa-spinner fa-spin"></i> Guardando...</span>
                         </button>
                     </ng-container>
 
                     <ng-container *ngIf="savedProjectId">
-                        <button type="button" class="btn btn-primary" (click)="onUploadProjectImage(savedProjectId)" [disabled]="!selectedFile || uploadingImage">
+                        <button type="button" class="btn btn-primary" (click)="onUploadProjectLogo(savedProjectId)" [disabled]="selectedFile === null || uploadingImage">
                             <span *ngIf="!uploadingImage">Subir Logo</span>
                             <span *ngIf="uploadingImage"><i class="fa fa-spinner fa-spin"></i> Subiendo...</span>
                         </button>

@@ -1,5 +1,4 @@
-import { Herramienta } from './tools.model'; // Import Herramienta
-// import { Persona } from './person.model'; // Avoid circular dependency for now
+import { Herramienta } from './tools.model';
 
 export interface Proyecto {
     id_proyecto?: number;
@@ -8,7 +7,18 @@ export interface Proyecto {
     url: string;
     inicio: string;
     fin: string;
-    logo_proyecto?: string; // Added missing logo property
-    persona?: any; // Acknowledge persona property, avoid circular dependency
-    herramientas?: Herramienta[]; // Added missing herramientas property
+    logo_proyecto?: string;
+    persona?: { id_persona: number };
+    herramientas?: Herramienta[];
+}
+
+export interface ProyectoDto {
+    id_proyecto: number;
+    nombre: string;
+    descripcion: string;
+    url: string;
+    inicio: string;
+    fin: string;
+    logo_proyecto: string;
+    herramientas?: Herramienta[];
 }

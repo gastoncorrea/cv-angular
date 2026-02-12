@@ -54,7 +54,7 @@ export class PersonaUpdateFormComponent implements OnInit {
   loadPersonaData(id: number): void {
     this.isLoading = true;
     this.personaService.getPersona(id).subscribe({
-      next: (data: Persona) => {
+      next: (data: PersonaDto) => { // Changed type to PersonaDto
         this.personaForm.patchValue({
           nombre: data.nombre,
           apellido: data.apellido,
@@ -98,7 +98,7 @@ export class PersonaUpdateFormComponent implements OnInit {
 
     this.isLoading = true;
     // Actualizar solo los datos de texto
-    this.personaService.updatePersona(this.personaId, updatedPersona).subscribe({
+    this.personaService.updatePersona(this.personaId, updatedPersona as PersonaDto).subscribe({ // Cast to PersonaDto
       next: () => {
         this.isLoading = false;
         this.successMessage = 'Información personal actualizada con éxito.';

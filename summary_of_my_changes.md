@@ -62,3 +62,13 @@
 *   **Re-diseño de la Tarjeta de Contacto:**
     *   Se reestructuró el HTML y el CSS de cada tarjeta de contacto.
     *   Los botones de "editar" y "eliminar" ahora se posicionan a la derecha del nombre y el logo, apilados verticalmente, según lo solicitado.
+
+### 5. Análisis y Corrección de Problemas en el Componente de Educación
+
+*   **Problema con `logo_imagen` en Base de Datos:** Se identificó que tener la URL de un endpoint (`"http://localhost:8080/educacion/save"`) almacenada en el campo `logo_imagen` de la tabla `estudios` (educación) en la base de datos causa errores.
+    *   **Causa:** El frontend interpreta esta cadena como una URL de imagen válida, pero al intentar cargarla, el servidor responde con un error (`405 Method Not Allowed` o `404 Not Found`) porque no es un recurso de imagen. Además, se detectó que el backend podía generar errores ("Illegal char <:> at index 4") al intentar procesar internamente esta URL como si fuera una ruta de archivo.
+    *   **Solución:** Se requiere la corrección manual de la entrada en la base de datos, reemplazando la URL incorrecta por una URL de imagen válida, una ruta relativa o `NULL`/cadena vacía para que se use la imagen por defecto.
+
+*   **Error de Clave Foránea al Eliminar Educación:** Se encontró un error de "foreign key constraint fails" (`Cannot delete or update a parent row`) al intentar eliminar una entrada de educación.
+    *   **Causa:** Esto ocurre porque existen registros asociados en la tabla `herramienta_educacion` (que gestiona las herramientas vinculadas a una educación) que referencian el `id_educacion` que se intenta eliminar. La base de datos impide la eliminación para mantener la integridad referencial.
+    *   **Solución (requiere cambios en el backend/BD):** Para resolver esto, se debe configurar `ON DELETE CASCADE` en la clave foránea de la tabla `herramienta_educacion` que referencia a `estudios`, o implementar lógica en el backend (Spring Boot) para eliminar primero las asociaciones de herramientas antes de eliminar la entrada de educación.

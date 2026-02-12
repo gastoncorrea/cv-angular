@@ -9,11 +9,12 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from './auth.service'; // Import AuthService
+import { Router } from '@angular/router'; // Import Router
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-  constructor(private authService: AuthService) {} // Inject AuthService
+  constructor(private authService: AuthService, private router: Router) {} // Inject AuthService and Router
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const authToken = this.authService.getAccessToken(); // Get the token from AuthService
@@ -33,8 +34,8 @@ export class AuthInterceptor implements HttpInterceptor {
           // Si el token es inválido, expiró, o no tiene permisos (403),
           // el backend devuelve un error. Aquí manejamos el logout automático.
           this.authService.logout();
-          // Opcional: recargar la página para limpiar el estado completamente.
-          location.reload();
+          alert('Tu sesión ha expirado o no tienes permisos. Por favor, inicia sesión de nuevo.'); // Display message
+          this.router.navigate(['/']); // Redirect to public home page
         }
         return throwError(() => error);
       })

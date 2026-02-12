@@ -1,10 +1,16 @@
-// import { Persona } from './person.model'; // Avoid circular dependency for now
-
 export interface Residencia {
     id_residencia?: number;
     localidad: string;
     provincia: string;
     pais: string;
     nacionalidad: string;
-    persona?: any; // Acknowledge persona property, avoid circular dependency
+    persona?: { id_persona: number };
+}
+
+export interface ResidenciaDto {
+    id_residencia: number;
+    localidad: string;
+    provincia: string;
+    pais: string;
+    nacionalidad: string;
 }
