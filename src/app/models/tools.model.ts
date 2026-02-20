@@ -20,3 +20,19 @@ export interface HerramientaDto {
     url?: string;
     logo?: string;
 }
+
+export interface HerramientaRequestDto {
+    id?: number;
+    nombre?: string;
+    version?: string;
+}
+
+export interface ProyectoHerramientasDto {
+    proyectoId: number;
+    herramientas: HerramientaRequestDto[];
+}
+
+export interface EducacionHerramientasDto {
+    educacionId: number;
+    herramientas: HerramientaRequestDto[];
+}

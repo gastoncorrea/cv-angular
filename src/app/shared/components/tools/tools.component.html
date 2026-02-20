@@ -7,6 +7,14 @@
         </summary>
         <div *ngIf="tools && tools.length > 0" class="card-list">
             <div class="card" *ngFor="let tool of tools">
+                <div class="crud-buttons" *ngIf="authService.isLoggedIn() | async">
+                    <button class="btn btn-edit" (click)="onEditTool(tool)">
+                        <i class="fa-solid fa-pencil"></i>
+                    </button>
+                    <button class="btn btn-delete" (click)="onDeleteTool(tool)">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
                 <div class="tools-img">
                     <img [src]="getFullImageUrl(tool.logo)" [alt]="tool.nombre || 'Tool Image'">
                 </div>

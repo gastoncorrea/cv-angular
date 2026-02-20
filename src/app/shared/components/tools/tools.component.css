@@ -26,19 +26,49 @@
 }
 .card-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    /* auto-fit expande los items para llenar el ancho. 
+       minmax(calc(25% - 15px), 1fr) asegura un máximo de 4 por fila. */
+    grid-template-columns: repeat(auto-fit, minmax(calc(25% - 15px), 1fr));
+    width: 100%;
+    gap: 15px;
 }
 
 .card {
+    position: relative; /* Essential for absolute positioning of CRUD buttons */
     display: flex;
     justify-content: space-around;
     align-items: center;
-    padding: 2% 2%;
-    margin: 2% 1%;
+    padding: 10px;
+    margin: 5px;
     border: 2px solid #AB77FF44;
     border-radius: 10px;
     box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     background-color: #FFFFFF;
+}
+
+.crud-buttons {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    gap: 5px;
+    z-index: 10;
+}
+
+.crud-buttons .btn-edit,
+.crud-buttons .btn-delete {
+    background: none;
+    border: none;
+    color: #AB77FF;
+    cursor: pointer;
+    font-size: 1.2em;
+    padding: 3px;
+    transition: color 0.3s;
+}
+
+.crud-buttons .btn-edit:hover,
+.crud-buttons .btn-delete:hover {
+    color: #8A5BBF;
 }
 .tools-img {
     width: 60px; /* Fixed width for consistency */

@@ -88,6 +88,9 @@
             <div *ngIf="projects && projects.length > 0; else noProjects">
                 <div class="experience-item" *ngFor="let project of projects">
                     <div class="crud-buttons" *ngIf="authService.isLoggedIn() | async">
+                        <button class="btn btn-add-tool-crud" (click)="toggleAddToolForm(project.id_proyecto)" [title]="showAddToolForm && selectedProjectIdForTool === project.id_proyecto ? 'Cerrar' : 'Añadir Herramienta'">
+                            <i class="fa-solid" [ngClass]="showAddToolForm && selectedProjectIdForTool === project.id_proyecto ? 'fa-xmark' : 'fa-screwdriver-wrench'"></i>
+                        </button>
                         <button class="btn btn-edit" (click)="editProject(project)">
                             <i class="fa-solid fa-pencil"></i>
                         </button>
@@ -108,9 +111,73 @@
                     <div *ngIf="project.url">
                         <a [href]="project.url" target="_blank">Ver Proyecto</a>
                     </div>
-                    <!-- Display tools for this project -->
-                    <app-tools *ngIf="project.herramientas && project.herramientas.length > 0"
-                                [tools]="project.herramientas"></app-tools>
+                    
+                    <!-- Display tools for this project (ahora ocupará el ancho disponible) -->
+                    <div class="tools-container-full">
+                        <app-tools *ngIf="project.herramientas && project.herramientas.length > 0"
+                                    [tools]="project.herramientas"
+                                    (edit)="editToolFromProject($event, project.id_proyecto)"
+                                    (delete)="removeToolFromProject($event, project.id_proyecto)"></app-tools>
+                    </div>
+
+                    <!-- Tool Addition Form (per project) -->
+                    <div *ngIf="showAddToolForm && selectedProjectIdForTool === project.id_proyecto" class="add-tool-form-container mt-3">
+                        <h5>Añadir Herramienta al Proyecto</h5>
+                        <form #addToolForm="ngForm">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="isNewTool" [(ngModel)]="isNewTool" name="isNewTool" (change)="resetToolForm(true)">
+                                <label class="form-check-label" for="isNewTool">
+                                    ¿Es una herramienta nueva?
+                                </label>
+                            </div>
+
+                            <div *ngIf="!isNewTool" class="form-group">
+                                <label for="toolSelect">Seleccionar Herramienta Existente:</label>
+                                <select class="form-control" id="toolSelect" [(ngModel)]="selectedToolId" name="toolSelect" required>
+                                    <option [ngValue]="null">Seleccione una herramienta...</option>
+                                    <option *ngFor="let tool of allTools" 
+                                            [ngValue]="tool.id_herramienta"
+                                            [disabled]="isToolAlreadyInProject(tool.id_herramienta)">
+                                        {{ tool.nombre }} ({{ tool.version }}) {{ isToolAlreadyInProject(tool.id_herramienta) ? '- Ya agregada' : '' }}
+                                    </option>
+                                </select>
+                            </div>
+
+                            <div *ngIf="isNewTool">
+                                <div class="form-group">
+                                    <label for="newToolName">Nombre:</label>
+                                    <input type="text" class="form-control" id="newToolName" [(ngModel)]="newTool.nombre" name="newToolName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newToolVersion">Versión:</label>
+                                    <input type="text" class="form-control" id="newToolVersion" [(ngModel)]="newTool.version" name="newToolVersion" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newToolUrl">URL (GitHub, Web, etc.):</label>
+                                    <input type="url" class="form-control" id="newToolUrl" [(ngModel)]="newTool.url" name="newToolUrl" placeholder="https://github.com/tu-usuario">
+                                </div>
+                                <div class="form-group">
+                                    <label for="newToolDesc">Descripción:</label>
+                                    <textarea class="form-control" id="newToolDesc" [(ngModel)]="newTool.descripcion" name="newToolDesc"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newToolLogo">Logo (Imagen):</label>
+                                    <input type="file" accept="image/*" (change)="onFileSelected($event)" class="form-control-file">
+                                    <div *ngIf="previewUrl" class="image-preview-container mt-2">
+                                        <img [src]="previewUrl" alt="Preview" class="image-preview" style="max-width: 50px;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-actions mt-3">
+                                <button type="button" class="btn btn-primary" (click)="onSaveToolToProject()" [disabled]="isLoading || (!isNewTool && !selectedToolId) || (isNewTool && !newTool.nombre)">
+                                    <span *ngIf="!isLoading">Añadir al Proyecto</span>
+                                    <span *ngIf="isLoading"><i class="fa fa-spinner fa-spin"></i> Guardando...</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary" (click)="showAddToolForm = false" [disabled]="isLoading">Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
             <ng-template #noProjects>

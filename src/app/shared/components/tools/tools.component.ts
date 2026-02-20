@@ -1,6 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Herramienta } from 'src/app/models/tools.model';
 import { environment } from 'src/environments/environment'; // Import environment
+import { AuthService } from 'src/app/auth.service';
 
 @Component({
   selector: 'app-tools',
@@ -9,9 +10,12 @@ import { environment } from 'src/environments/environment'; // Import environmen
 })
 export class ToolsComponent {
   @Input() tools: Herramienta[] | undefined;
+  @Output() edit = new EventEmitter<Herramienta>();
+  @Output() delete = new EventEmitter<Herramienta>();
+  
   backendUrl: string; // Declare backendUrl property
 
-  constructor() {
+  constructor(public authService: AuthService) {
     this.backendUrl = environment.backendUrl; // Initialize in constructor
   }
 
@@ -25,5 +29,15 @@ export class ToolsComponent {
       return `${this.backendUrl}${relativeUrl}`;
     }
     return 'assets/img/icono-de-herramienta-logo.webp'; // Return default image if no valid logo URL
+  }
+
+  onEditTool(tool: Herramienta): void {
+    this.edit.emit(tool);
+  }
+
+  onDeleteTool(tool: Herramienta): void {
+    if (confirm(`¿Estás seguro de que quieres quitar la herramienta "${tool.nombre}"?`)) {
+      this.delete.emit(tool);
+    }
   }
 }

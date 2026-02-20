@@ -4,18 +4,17 @@
              [alt]="'Imagen de perfil de ' + (personalData.nombre || 'Usuario')" 
              class="center-img">
         <button class="btn btn-edit-photo" *ngIf="authService.isLoggedIn() | async" (click)="toggleUploadForm()">
-            <i class="fa-solid fa-camera"></i>
+            <i class="fa-solid" [ngClass]="showUploadForm ? 'fa-xmark' : 'fa-camera'"></i>
         </button>
     </div>
 
-    <!-- Formulario de subida de imagen -->
+    <!-- Formulario de subida de imagen (Mismo estilo que los otros componentes) -->
     <div *ngIf="showUploadForm" class="upload-form-container">
         <h3>Actualizar foto de perfil</h3>
         <div class="form-group">
             <input type="file" accept="image/*" (change)="onFileSelected($event)" class="form-control-file">
         </div>
         
-        <!-- Vista previa de la imagen -->
         <div *ngIf="previewUrl" class="image-preview-container">
             <img [src]="previewUrl" alt="Vista previa de la imagen" class="image-preview">
         </div>
@@ -25,7 +24,7 @@
                 <span *ngIf="!isLoading">Subir</span>
                 <span *ngIf="isLoading"><i class="fa fa-spinner fa-spin"></i> Subiendo...</span>
             </button>
-            <button class="btn btn-secondary" (click)="cancelUpload()" [disabled]="isLoading">
+            <button class="btn btn-secondary" (click)="formService.closeAll()" [disabled]="isLoading">
                 Cancelar
             </button>
         </div>
@@ -34,10 +33,58 @@
             {{ errorMessage }}
         </div>
     </div>
+
+    <!-- Formulario de edición de información personal (Integrado) -->
+    <div *ngIf="showEditForm" class="add-form-container">
+        <h3>Editar Información Personal</h3>
+        <form [formGroup]="personaForm" (ngSubmit)="onSavePersona()">
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" formControlName="nombre" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" formControlName="apellido" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="descripcion_mi">Sobre Mí:</label>
+                <textarea id="descripcion_mi" formControlName="descripcion_mi" rows="4" class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
+                <input type="date" id="fecha_nacimiento" formControlName="fecha_nacimiento" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="num_celular">Número de Celular:</label>
+                <input type="text" id="num_celular" formControlName="num_celular" class="form-control">
+            </div>
+
+            <div *ngIf="errorMessage" class="alert alert-danger mt-2">
+                {{ errorMessage }}
+            </div>
+            <div *ngIf="successMessage" class="alert alert-success mt-2">
+                {{ successMessage }}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary" [disabled]="personaForm.invalid || isLoading">
+                    <span *ngIf="!isLoading">Guardar</span>
+                    <span *ngIf="isLoading"><i class="fa fa-spinner fa-spin"></i> Guardando...</span>
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="cancelEdit()" [disabled]="isLoading">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
     
     <div class="personal-info-actions">
         <button class="btn btn-edit" *ngIf="authService.isLoggedIn() | async" (click)="editPersona()">
-            <i class="fa-solid fa-pencil"></i>
+            <i class="fa-solid" [ngClass]="showEditForm ? 'fa-xmark' : 'fa-pencil'"></i>
         </button>
     </div>
 
@@ -56,5 +103,3 @@
         <p>{{ personalData.descripcion_mi }}</p>
     </div>
 </div>
-
-<!-- No need for a separate loading state here, as it's handled by the parent HomeComponent -->

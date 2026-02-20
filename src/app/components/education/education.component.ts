@@ -1,6 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Educacion, EducacionDto } from 'src/app/models/education.model';
 import { EducacionService } from 'src/app/core/services/education.service';
+import { HerramientaService } from 'src/app/core/services/tool.service';
+import { Herramienta, HerramientaDto, EducacionHerramientasDto, HerramientaRequestDto } from 'src/app/models/tools.model';
+import { FormManagementService } from 'src/app/core/services/form-management.service';
 import { Observable, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from 'src/app/auth.service';
@@ -16,6 +19,7 @@ export class EducationComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   errorMessage: string | undefined;
   private educationSubscription: Subscription | undefined;
+  private formSubscription: Subscription | undefined;
   private readonly PUBLIC_PERSONA_ID = 1;
   backendUrl: string;
 
@@ -28,8 +32,18 @@ export class EducationComponent implements OnInit, OnDestroy {
   imageErrorMessage: string = '';
   editingEducationId: number | null = null;
 
+  allTools: HerramientaDto[] = [];
+  showAddToolForm = false;
+  selectedEducationIdForTool: number | null = null;
+  isNewTool = false;
+  selectedToolId: number | null = null;
+  newTool: Herramienta = { nombre: '', version: '' };
+  savedToolId: number | null = null;
+
   constructor(
     private educationService: EducacionService,
+    private herramientaService: HerramientaService,
+    private formService: FormManagementService,
     public authService: AuthService
   ) {
     this.backendUrl = environment.backendUrl;
@@ -37,89 +51,208 @@ export class EducationComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadEducationData();
+    this.loadAllTools();
+    this.subscribeToFormService();
+  }
+
+  private subscribeToFormService(): void {
+    this.formSubscription = this.formService.getOpenFormId().subscribe(openId => {
+      if (openId !== 'edu-form' && !openId?.startsWith('edu-tool-')) {
+        this.showAddEducationForm = false;
+        this.showAddToolForm = false;
+      } else if (openId === 'edu-form') {
+        this.showAddToolForm = false;
+      } else if (openId?.startsWith('edu-tool-')) {
+        this.showAddEducationForm = false;
+      }
+    });
+  }
+
+  loadAllTools(): void {
+    this.herramientaService.getAllHerramientas().subscribe({
+      next: (tools) => this.allTools = tools,
+      error: (err) => console.error('Error loading tools:', err)
+    });
+  }
+
+  isToolAlreadyInEducation(toolId: number): boolean {
+    if (!this.selectedEducationIdForTool || !this.education) return false;
+    const edu = this.education.find(e => e.id_educacion === this.selectedEducationIdForTool);
+    return edu?.herramientas?.some(t => t.id_herramienta === toolId) || false;
+  }
+
+  toggleAddToolForm(educationId: number | undefined): void {
+    if (!educationId) return;
+    const formId = `edu-tool-${educationId}`;
+    if (this.selectedEducationIdForTool === educationId && this.showAddToolForm) {
+      this.formService.closeAll();
+    } else {
+      this.formService.openForm(formId);
+      this.selectedEducationIdForTool = educationId;
+      this.showAddToolForm = true;
+      this.resetToolForm();
+    }
+  }
+
+  resetToolForm(keepMode: boolean = false): void {
+    if (!keepMode) {
+      this.isNewTool = false;
+    }
+    this.selectedToolId = null;
+    this.newTool = { nombre: '', version: '' };
+    this.savedToolId = null;
+    this.selectedFile = null;
+    this.previewUrl = null;
+    this.imageErrorMessage = '';
+  }
+
+  onSaveToolToEducation(): void {
+    if (!this.selectedEducationIdForTool) return;
+    this.isLoading = true;
+    if (this.isNewTool) {
+      this.herramientaService.saveHerramienta(this.newTool).subscribe({
+        next: (savedTool: HerramientaDto) => {
+          this.savedToolId = savedTool.id_herramienta;
+          this.associateToolToEducation(savedTool.id_herramienta);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.errorMessage = `Error: ${err.message}`;
+        }
+      });
+    } else if (this.selectedToolId) {
+      this.associateToolToEducation(this.selectedToolId);
+    }
+  }
+
+  private associateToolToEducation(toolId: number): void {
+    if (!this.selectedEducationIdForTool) return;
+    const payload: EducacionHerramientasDto = {
+      educacionId: this.selectedEducationIdForTool,
+      herramientas: [{ id: toolId }]
+    };
+    this.educationService.addHerramientasToEducacion(payload).subscribe({
+      next: () => {
+        if (this.isNewTool && this.selectedFile && this.savedToolId) {
+          this.uploadToolLogoAndFinish(this.savedToolId);
+        } else {
+          this.finishToolAddition();
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = `Error: ${err.message}`;
+      }
+    });
+  }
+
+  private uploadToolLogoAndFinish(toolId: number): void {
+    if (!this.selectedFile) return;
+    this.herramientaService.uploadToolLogo(toolId, this.selectedFile).subscribe({
+      next: () => this.finishToolAddition(),
+      error: (err) => {
+        this.isLoading = false;
+        this.finishToolAddition();
+      }
+    });
+  }
+
+  private finishToolAddition(): void {
+    this.isLoading = false;
+    this.showAddToolForm = false;
+    this.selectedEducationIdForTool = null;
+    this.formService.closeAll();
+    this.loadEducationData();
+    this.loadAllTools();
   }
 
   editEducation(edu: Educacion): void {
     if (edu.id_educacion) {
+      this.formService.openForm('edu-form');
       this.editingEducationId = edu.id_educacion;
       this.newEducation = { ...edu };
       this.showAddEducationForm = true;
       this.cancelImageUpload();
-      this.errorMessage = undefined;
-    } else {
-      console.error('No se puede editar una entrada de educación sin ID.');
     }
   }
 
   deleteEducation(edu: Educacion): void {
-    if (!edu.id_educacion) {
-      console.error('No se puede eliminar una entrada de educación sin ID.');
-      this.errorMessage = 'No se puede eliminar una entrada de educación sin ID.';
-      return;
-    }
-
-    if (confirm(`¿Estás seguro de que quieres eliminar la entrada "${edu.titulo}"?`)) {
+    if (!edu.id_educacion) return;
+    if (confirm(`¿Estás seguro?`)) {
       this.isLoading = true;
-      this.errorMessage = undefined;
-
       this.educationService.deleteEducacion(edu.id_educacion).subscribe({
         next: () => {
           this.isLoading = false;
           this.loadEducationData();
-          console.log(`Entrada de educación "${edu.titulo}" eliminada con éxito.`);
         },
-        error: (err: HttpErrorResponse) => {
+        error: (err) => {
           this.isLoading = false;
-          this.errorMessage = `Error al eliminar la entrada "${edu.titulo}": ${err.message || 'Error desconocido'}`;
-          console.error('Delete education error:', err);
+          this.errorMessage = `Error: ${err.message}`;
         }
       });
     }
   }
 
+  editToolFromEducation(tool: Herramienta, educationId: number | undefined): void {
+    if (!educationId) return;
+    this.formService.openForm(`edu-tool-${educationId}`);
+    this.selectedEducationIdForTool = educationId;
+    this.showAddToolForm = true;
+    this.isNewTool = true;
+    this.newTool = { ...tool };
+  }
+
+  removeToolFromEducation(tool: Herramienta, educationId: number | undefined): void {
+    if (!educationId || !tool.id_herramienta) return;
+    this.isLoading = true;
+    this.educationService.deleteHerramientaFromEducacion(educationId, tool.id_herramienta).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.loadEducationData();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = `Error: ${err.message}`;
+      }
+    });
+  }
+
   loadEducationData(): void {
     this.isLoading = true;
-    this.errorMessage = undefined;
     this.educationSubscription = this.educationService.getEducacionByPersonaId(this.PUBLIC_PERSONA_ID).subscribe({
-      next: (data: EducacionDto[]) => {
+      next: (data) => {
         this.education = data;
         this.isLoading = false;
       },
       error: (error) => {
-        this.errorMessage = `Error al cargar los datos de educación: ${error.message}`;
         this.isLoading = false;
-        console.error('Error en EducationComponent al cargar datos:', error);
+        this.errorMessage = `Error: ${error.message}`;
       }
     });
   }
 
   ngOnDestroy(): void {
-    if (this.educationSubscription) {
-      this.educationSubscription.unsubscribe();
-    }
+    if (this.educationSubscription) this.educationSubscription.unsubscribe();
+    if (this.formSubscription) this.formSubscription.unsubscribe();
   }
 
   toggleAddEducationForm(): void {
     this.showAddEducationForm = !this.showAddEducationForm;
     if (!this.showAddEducationForm) {
-      this.cancelAddEducation();
+      this.formService.closeAll();
     } else {
+      this.formService.openForm('edu-form');
       this.newEducation = { nombre_institucion: '', logo_imagen: '', fecha_inicio: '', fecha_fin: '', titulo: '', url_titulo: '' };
       this.newEducation.persona = { id_persona: this.PUBLIC_PERSONA_ID };
       this.savedEducationId = null;
       this.editingEducationId = null;
-      this.errorMessage = undefined;
       this.cancelImageUpload();
     }
   }
 
   cancelAddEducation(): void {
     this.showAddEducationForm = false;
-    this.newEducation = { nombre_institucion: '', logo_imagen: '', fecha_inicio: '', fecha_fin: '', titulo: '', url_titulo: '' };
-    this.savedEducationId = null;
-    this.editingEducationId = null;
-    this.errorMessage = undefined;
-    this.cancelImageUpload();
+    this.formService.closeAll();
     this.loadEducationData();
   }
 
@@ -128,89 +261,40 @@ export class EducationComponent implements OnInit, OnDestroy {
     if (file) {
       this.selectedFile = file;
       const reader = new FileReader();
-      reader.onload = () => {
-        this.previewUrl = reader.result;
-      };
+      reader.onload = () => { this.previewUrl = reader.result; };
       reader.readAsDataURL(file);
     }
   }
 
   onSaveEducation(): void {
-    if (!this.newEducation.nombre_institucion || !this.newEducation.titulo || !this.newEducation.fecha_inicio) {
-      this.errorMessage = 'Nombre de la institución, título y fecha de inicio son obligatorios.';
-      return;
-    }
-
-    if (!this.newEducation.persona || !this.newEducation.persona.id_persona) {
-      this.newEducation.persona = { id_persona: this.PUBLIC_PERSONA_ID };
-    }
-
+    if (!this.newEducation.nombre_institucion || !this.newEducation.titulo || !this.newEducation.fecha_inicio) return;
     this.isLoading = true;
-    this.errorMessage = undefined;
-
-    let saveUpdateObservable: Observable<EducacionDto>;
-
-    if (this.editingEducationId) {
-      if (this.newEducation.id_educacion === undefined) {
-        this.errorMessage = 'Error: ID de educación no definido para actualización.';
+    let obs = this.editingEducationId 
+      ? this.educationService.updateEducacion(this.editingEducationId, this.newEducation)
+      : this.educationService.saveEducacion(this.newEducation);
+    obs.subscribe({
+      next: (saved) => {
         this.isLoading = false;
-        return;
-      }
-      saveUpdateObservable = this.educationService.updateEducacion(this.editingEducationId, this.newEducation);
-    } else {
-      saveUpdateObservable = this.educationService.saveEducacion(this.newEducation);
-    }
-
-    saveUpdateObservable.subscribe({
-      next: (savedEducation: EducacionDto) => {
-        this.isLoading = false;
-        this.savedEducationId = savedEducation.id_educacion || null;
-        this.errorMessage = undefined;
+        this.savedEducationId = saved.id_educacion || null;
       },
-      error: (err: HttpErrorResponse) => {
+      error: (err) => {
         this.isLoading = false;
-        this.errorMessage = `Error al ${this.editingEducationId ? 'actualizar' : 'agregar'} la entrada de educación: ${err.message}`;
-        console.error(`${this.editingEducationId ? 'Update' : 'Add'} education error:`, err);
+        this.errorMessage = `Error: ${err.message}`;
       }
     });
   }
 
   onUploadEducationLogo(educationId: number | null | undefined): void {
-    if (!this.selectedFile || educationId === null || educationId === undefined) {
-      this.imageErrorMessage = 'Por favor, selecciona un archivo y asegúrate de que la entrada de educación tenga un ID.';
-      return;
-    }
-
+    if (!this.selectedFile || !educationId) return;
     this.uploadingImage = true;
-    this.imageErrorMessage = '';
-
     this.educationService.uploadEducationLogo(educationId, this.selectedFile).subscribe({
       next: () => {
         this.uploadingImage = false;
-        this.loadEducationData();
         this.cancelAddEducation();
       },
-      error: (err: HttpErrorResponse) => { // Explicitly type err for better type checking
+      error: (err) => {
         this.uploadingImage = false;
-        console.error('ERROR during Education Image Upload (raw):', err); // Log the raw error
-        // Attempt to extract a user-friendly message from the error object
-        let userFriendlyMessage = 'Error desconocido al subir la imagen.';
-        if (err instanceof HttpErrorResponse) {
-          if (typeof err.error === 'string') {
-            try {
-              const parsedError = JSON.parse(err.error);
-              userFriendlyMessage = parsedError.error || err.message || userFriendlyMessage;
-            } catch (e) {
-              userFriendlyMessage = err.error || err.message || userFriendlyMessage;
-            }
-          } else if (err.error && err.error.message) {
-            userFriendlyMessage = err.error.message;
-          } else if (err.message) {
-            userFriendlyMessage = err.message;
-          }
-        }
-        this.imageErrorMessage = `Error al subir la imagen: ${userFriendlyMessage}`;
-        console.error('ERROR during Education Image Upload (processed):', this.imageErrorMessage);
+        this.imageErrorMessage = `Error: ${err.message}`;
       }
     });
   }
@@ -223,18 +307,8 @@ export class EducationComponent implements OnInit, OnDestroy {
 
   getFullImageUrl(relativeUrl: string | null | undefined): string {
     if (relativeUrl && relativeUrl.trim() !== '') {
-      if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://') || relativeUrl.startsWith('data:')) {
-        return relativeUrl;
-      }
-      // Assuming images are served from /uploads/ relative to the backend URL
-      let baseUrl = this.backendUrl.endsWith('/') ? this.backendUrl : `${this.backendUrl}/`;
-      let cleanRelativeUrl = relativeUrl.startsWith('/') ? relativeUrl.substring(1) : relativeUrl;
-      
-      // Add /uploads/ prefix if not already present
-      if (!cleanRelativeUrl.startsWith('uploads/')) {
-        cleanRelativeUrl = `uploads/${cleanRelativeUrl}`;
-      }
-      return `${baseUrl}${cleanRelativeUrl}`;
+      if (relativeUrl.startsWith('http') || relativeUrl.startsWith('data:')) return relativeUrl;
+      return `${this.backendUrl}${relativeUrl.startsWith('/') ? '' : '/'}${relativeUrl.startsWith('uploads/') ? '' : 'uploads/'}${relativeUrl}`;
     }
     return 'assets/img/logo_default_education.jpg';
   }

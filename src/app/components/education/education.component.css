@@ -41,7 +41,8 @@
 }
 
 .education-item .crud-buttons .btn-edit,
-.education-item .crud-buttons .btn-delete {
+.education-item .crud-buttons .btn-delete,
+.education-item .crud-buttons .btn-add-tool-crud {
     background: none;
     border: none;
     color: #AB77FF; /* Or any prominent color */
@@ -50,7 +51,8 @@
     padding: 5px; /* Add padding to make it more clickable */
 }
 
-.education-item .crud-buttons .btn-edit:hover {
+.education-item .crud-buttons .btn-edit:hover,
+.education-item .crud-buttons .btn-add-tool-crud:hover {
     color: #8A5BBF; /* Darker shade on hover */
 }
 
@@ -60,6 +62,13 @@
 
 .education-item .crud-buttons .btn-delete:hover {
     color: #8A5BBF; /* Darker shade on hover, same as edit button */
+}
+
+/* Full width tools container */
+.tools-container-full {
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 15px;
 }
 
 .title-education{
@@ -266,4 +275,81 @@ h1,h2, p {
     font-size: 0.8em;
     margin-top: 10px;
     padding: 5px;
+}
+
+/* --- Styles for Add Tool to Project/Education --- */
+.tools-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.add-tool-action {
+    margin-top: 5px;
+}
+
+.btn-add-tool {
+    background: none;
+    border: 2px solid #AB77FF44;
+    border-radius: 5px;
+    color: #AB77FF;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-add-tool:hover {
+    background-color: #AB77FF44;
+    color: #8A5BBF;
+}
+
+.add-tool-form-container {
+    border: 1px dashed #AB77FF;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fcfaff;
+    margin: 10px 0;
+}
+
+.add-tool-form-container h5 {
+    color: #8A5BBF;
+    margin-bottom: 10px;
+}
+
+.add-tool-form-container .form-group {
+    margin-bottom: 12px;
+}
+
+.add-tool-form-container .form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.add-tool-form-container .form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.add-tool-form-container .btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.add-tool-form-container .btn-primary {
+    background-color: #AB77FF;
+    color: white;
+    border: none;
+}
+
+.add-tool-form-container .btn-secondary {
+    background-color: #ccc;
+    color: #333;
+    border: none;
 }

@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Educacion, EducacionDto } from 'src/app/models/education.model';
-import { Herramienta } from 'src/app/models/tools.model';
+import { EducacionHerramientasDto, Herramienta } from 'src/app/models/tools.model';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -104,12 +104,24 @@ export class EducacionService {
   /**
    * Adds tools to an education entry.
    * POST /educacion/herramientas
-   * @param educacionId The ID of the education entry.
-   * @param herramientas An array of Herramienta objects to add.
+   * @param payload The EducacionHerramientasDto containing education ID and tool requests.
    * @returns An Observable of the updated EducacionDto.
    */
-  public addHerramientasToEducacion(educacionId: number, herramientas: Herramienta[]): Observable<EducacionDto> {
-    return this.http.post<EducacionDto>(`${this.URL_API}/herramientas`, { educacionId, herramientas }).pipe(
+  public addHerramientasToEducacion(payload: EducacionHerramientasDto): Observable<EducacionDto> {
+    return this.http.post<EducacionDto>(`${this.URL_API}/herramientas`, payload).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Removes a tool from an education entry.
+   * DELETE /educacion/{educacionId}/herramientas/{herramientaId}
+   * @param educacionId The ID of the education entry.
+   * @param herramientaId The ID of the tool to remove.
+   * @returns An Observable of the updated EducacionDto.
+   */
+  public deleteHerramientaFromEducacion(educacionId: number, herramientaId: number): Observable<EducacionDto> {
+    return this.http.delete<EducacionDto>(`${this.URL_API}/${educacionId}/herramientas/${herramientaId}`).pipe(
       catchError(this.handleError)
     );
   }

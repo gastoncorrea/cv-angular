@@ -1,10 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Proyecto, ProyectoDto } from 'src/app/models/project.model'; // Import Proyecto, ProyectoDto
+import { Proyecto, ProyectoDto } from 'src/app/models/project.model';
 import { ProyectoService } from 'src/app/core/services/project.service';
-import { Observable, Subscription } from 'rxjs'; // Added Observable
+import { HerramientaService } from 'src/app/core/services/tool.service';
+import { Herramienta, HerramientaDto, ProyectoHerramientasDto, HerramientaRequestDto } from 'src/app/models/tools.model';
+import { FormManagementService } from 'src/app/core/services/form-management.service';
+import { Observable, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from 'src/app/auth.service';
-import { HttpErrorResponse } from '@angular/common/http'; // Added HttpErrorResponse
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-projects',
@@ -12,10 +15,11 @@ import { HttpErrorResponse } from '@angular/common/http'; // Added HttpErrorResp
   styleUrls: ['./projects.component.css']
 })
 export class ProjectsComponent implements OnInit, OnDestroy {
-  projects: Proyecto[] | undefined; // Reverted to Proyecto[]
+  projects: Proyecto[] | undefined;
   isLoading: boolean = false;
   errorMessage: string | undefined;
   private projectsSubscription: Subscription | undefined;
+  private formSubscription: Subscription | undefined;
   private readonly PUBLIC_PERSONA_ID = 1;
   backendUrl: string;
 
@@ -28,8 +32,18 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   imageErrorMessage: string = '';
   editingProjectId: number | null = null;
 
+  allTools: HerramientaDto[] = [];
+  showAddToolForm = false;
+  selectedProjectIdForTool: number | null = null;
+  isNewTool = false;
+  selectedToolId: number | null = null;
+  newTool: Herramienta = { nombre: '', version: '' };
+  savedToolId: number | null = null;
+
   constructor(
     private proyectoService: ProyectoService,
+    private herramientaService: HerramientaService,
+    private formService: FormManagementService,
     public authService: AuthService
   ) {
     this.backendUrl = environment.backendUrl;
@@ -37,95 +51,215 @@ export class ProjectsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadProjectData();
+    this.loadAllTools();
+    this.subscribeToFormService();
+  }
+
+  private subscribeToFormService(): void {
+    this.formSubscription = this.formService.getOpenFormId().subscribe(openId => {
+      if (openId !== 'project-form' && !openId?.startsWith('project-tool-')) {
+        this.showAddProjectForm = false;
+        this.showAddToolForm = false;
+      } else if (openId === 'project-form') {
+        this.showAddToolForm = false;
+      } else if (openId?.startsWith('project-tool-')) {
+        this.showAddProjectForm = false;
+      }
+    });
+  }
+
+  loadAllTools(): void {
+    this.herramientaService.getAllHerramientas().subscribe({
+      next: (tools) => this.allTools = tools,
+      error: (err) => console.error('Error loading tools:', err)
+    });
+  }
+
+  isToolAlreadyInProject(toolId: number): boolean {
+    if (!this.selectedProjectIdForTool || !this.projects) return false;
+    const project = this.projects.find(p => p.id_proyecto === this.selectedProjectIdForTool);
+    return project?.herramientas?.some(t => t.id_herramienta === toolId) || false;
+  }
+
+  toggleAddToolForm(projectId: number | undefined): void {
+    if (!projectId) return;
+    const formId = `project-tool-${projectId}`;
+    if (this.selectedProjectIdForTool === projectId && this.showAddToolForm) {
+      this.formService.closeAll();
+    } else {
+      this.formService.openForm(formId);
+      this.selectedProjectIdForTool = projectId;
+      this.showAddToolForm = true;
+      this.resetToolForm();
+    }
+  }
+
+  resetToolForm(keepMode: boolean = false): void {
+    if (!keepMode) {
+      this.isNewTool = false;
+    }
+    this.selectedToolId = null;
+    this.newTool = { nombre: '', version: '' };
+    this.savedToolId = null;
+    this.selectedFile = null;
+    this.previewUrl = null;
+    this.imageErrorMessage = '';
+  }
+
+  onSaveToolToProject(): void {
+    if (!this.selectedProjectIdForTool) return;
+    this.isLoading = true;
+    this.errorMessage = undefined;
+    if (this.isNewTool) {
+      this.herramientaService.saveHerramienta(this.newTool).subscribe({
+        next: (savedTool: HerramientaDto) => {
+          this.savedToolId = savedTool.id_herramienta;
+          this.associateToolToProject(savedTool.id_herramienta);
+        },
+        error: (err) => {
+          this.isLoading = false;
+          this.errorMessage = `Error al crear la herramienta: ${err.message}`;
+        }
+      });
+    } else if (this.selectedToolId) {
+      this.associateToolToProject(this.selectedToolId);
+    } else {
+      this.isLoading = false;
+      this.errorMessage = 'Debe seleccionar una herramienta o crear una nueva.';
+    }
+  }
+
+  private associateToolToProject(toolId: number): void {
+    if (!this.selectedProjectIdForTool) return;
+    const herramientaReq: HerramientaRequestDto = { id: toolId };
+    const payload: ProyectoHerramientasDto = {
+      proyectoId: this.selectedProjectIdForTool,
+      herramientas: [herramientaReq]
+    };
+    this.proyectoService.addHerramientasToProyecto(payload).subscribe({
+      next: () => {
+        if (this.isNewTool && this.selectedFile && this.savedToolId) {
+          this.uploadToolLogoAndFinish(this.savedToolId);
+        } else {
+          this.finishToolAddition();
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = `Error al asociar la herramienta al proyecto: ${err.message}`;
+      }
+    });
+  }
+
+  private uploadToolLogoAndFinish(toolId: number): void {
+    if (!this.selectedFile) return;
+    this.herramientaService.uploadToolLogo(toolId, this.selectedFile).subscribe({
+      next: () => this.finishToolAddition(),
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = `Herramienta asociada, pero hubo un error al subir el logo: ${err.message}`;
+        this.finishToolAddition();
+      }
+    });
+  }
+
+  private finishToolAddition(): void {
+    this.isLoading = false;
+    this.showAddToolForm = false;
+    this.selectedProjectIdForTool = null;
+    this.formService.closeAll();
+    this.loadProjectData();
+    this.loadAllTools();
   }
 
   editProject(project: Proyecto): void {
     if (project.id_proyecto) {
+      this.formService.openForm('project-form');
       this.editingProjectId = project.id_proyecto;
-      // Create a copy to avoid modifying the original object in the list
       this.newProject = { ...project };
-      this.showAddProjectForm = true; // Open the main form
-      this.cancelImageUpload(); // Reset any lingering image previews
-      this.errorMessage = undefined; // Clear any previous errors
-    } else {
-      console.error('No se puede editar un proyecto sin ID.');
+      this.showAddProjectForm = true;
+      this.cancelImageUpload();
+      this.errorMessage = undefined;
     }
   }
 
   deleteProject(project: Proyecto): void {
-    if (!project.id_proyecto) {
-      console.error('No se puede eliminar un proyecto sin ID.');
-      this.errorMessage = 'No se puede eliminar un proyecto sin ID.';
-      return;
-    }
-
+    if (!project.id_proyecto) return;
     if (confirm(`¿Estás seguro de que quieres eliminar el proyecto "${project.nombre}"?`)) {
       this.isLoading = true;
-      this.errorMessage = undefined; // Clear previous error messages
-
       this.proyectoService.deleteProyecto(project.id_proyecto).subscribe({
         next: () => {
           this.isLoading = false;
-          this.loadProjectData(); // Refresh the project list
-          console.log(`Proyecto "${project.nombre}" eliminado con éxito.`);
+          this.loadProjectData();
         },
         error: (err: HttpErrorResponse) => {
           this.isLoading = false;
-          this.errorMessage = `Error al eliminar el proyecto "${project.nombre}": ${err.message || 'Error desconocido'}`;
-          console.error('Delete project error:', err);
+          this.errorMessage = `Error al eliminar el proyecto: ${err.message}`;
         }
       });
     }
   }
 
+  editToolFromProject(tool: Herramienta, projectId: number | undefined): void {
+    if (!projectId) return;
+    this.formService.openForm(`project-tool-${projectId}`);
+    this.selectedProjectIdForTool = projectId;
+    this.showAddToolForm = true;
+    this.isNewTool = true;
+    this.newTool = { ...tool };
+  }
+
+  removeToolFromProject(tool: Herramienta, projectId: number | undefined): void {
+    if (!projectId || !tool.id_herramienta) return;
+    this.isLoading = true;
+    this.proyectoService.deleteHerramientaFromProyecto(projectId, tool.id_herramienta).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.loadProjectData();
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage = `Error al desvincular la herramienta: ${err.message}`;
+      }
+    });
+  }
+
   loadProjectData(): void {
     this.isLoading = true;
-    this.errorMessage = undefined;
     this.projectsSubscription = this.proyectoService.getProyectoByPersonaId(this.PUBLIC_PERSONA_ID).subscribe({
-      next: (data: ProyectoDto[]) => { // Service returns ProyectoDto[]
-        this.projects = data; // Assigned directly, TypeScript's structural typing handles it
+      next: (data: ProyectoDto[]) => {
+        this.projects = data;
         this.isLoading = false;
-        console.log('Proyectos cargados desde el servidor:');
-        console.log(this.projects);
-        data.forEach(project => {
-          console.log(`  Proyecto: ${project.nombre}, Logo: ${project.logo_proyecto}`);
-        });
       },
       error: (error) => {
         this.errorMessage = `Error al cargar los datos de proyectos: ${error.message}`;
         this.isLoading = false;
-        console.error('Error en ProjectsComponent al cargar datos:', error);
       }
     });
   }
 
   ngOnDestroy(): void {
-    if (this.projectsSubscription) {
-      this.projectsSubscription.unsubscribe();
-    }
+    if (this.projectsSubscription) this.projectsSubscription.unsubscribe();
+    if (this.formSubscription) this.formSubscription.unsubscribe();
   }
 
   toggleAddProjectForm(): void {
     this.showAddProjectForm = !this.showAddProjectForm;
     if (!this.showAddProjectForm) {
-      this.cancelAddProject();
+      this.formService.closeAll();
     } else {
+      this.formService.openForm('project-form');
       this.newProject = { nombre: '', descripcion: '', url: '', inicio: '', fin: '' };
       this.newProject.persona = { id_persona: this.PUBLIC_PERSONA_ID };
       this.savedProjectId = null;
       this.editingProjectId = null;
-      this.errorMessage = undefined;
       this.cancelImageUpload();
     }
   }
 
   cancelAddProject(): void {
     this.showAddProjectForm = false;
-    this.newProject = { nombre: '', descripcion: '', url: '', inicio: '', fin: '' };
-    this.savedProjectId = null;
-    this.editingProjectId = null;
-    this.errorMessage = undefined;
-    this.cancelImageUpload();
+    this.formService.closeAll();
     this.loadProjectData();
   }
 
@@ -134,77 +268,40 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     if (file) {
       this.selectedFile = file;
       const reader = new FileReader();
-      reader.onload = () => {
-        this.previewUrl = reader.result;
-      };
+      reader.onload = () => { this.previewUrl = reader.result; };
       reader.readAsDataURL(file);
     }
   }
 
   onSaveProject(): void {
-    if (!this.newProject.nombre || !this.newProject.descripcion || !this.newProject.inicio) {
-      this.errorMessage = 'Nombre, descripción y fecha de inicio son obligatorios.';
-      return;
-    }
-
-    // Ensure persona ID is set before saving/updating
-    if (!this.newProject.persona || !this.newProject.persona.id_persona) {
-      this.newProject.persona = { id_persona: this.PUBLIC_PERSONA_ID };
-    }
-
+    if (!this.newProject.nombre || !this.newProject.descripcion || !this.newProject.inicio) return;
     this.isLoading = true;
-    this.errorMessage = undefined;
-
-    let saveUpdateObservable: Observable<ProyectoDto>;
-
-    if (this.editingProjectId) {
-      // UPDATE existing project
-      // Ensure id_proyecto is present for update
-      if (this.newProject.id_proyecto === undefined) {
-        this.errorMessage = 'Error: ID de proyecto no definido para actualización.';
+    let obs = this.editingProjectId 
+      ? this.proyectoService.updateProyecto(this.editingProjectId, this.newProject)
+      : this.proyectoService.saveProyecto(this.newProject);
+    obs.subscribe({
+      next: (saved: ProyectoDto) => {
         this.isLoading = false;
-        return;
-      }
-      saveUpdateObservable = this.proyectoService.updateProyecto(this.editingProjectId, this.newProject);
-    } else {
-      // CREATE new project
-      saveUpdateObservable = this.proyectoService.saveProyecto(this.newProject);
-    }
-
-    saveUpdateObservable.subscribe({
-      next: (savedProject: ProyectoDto) => { // Added type ProyectoDto
-        this.isLoading = false;
-        this.savedProjectId = savedProject.id_proyecto || null;
-        this.errorMessage = undefined;
-        // DO NOT emit here or close the form. The form should stay open for the image upload step.
+        this.savedProjectId = saved.id_proyecto || null;
       },
-      error: (err: HttpErrorResponse) => { // Added type HttpErrorResponse
+      error: (err) => {
         this.isLoading = false;
-        this.errorMessage = `Error al ${this.editingProjectId ? 'actualizar' : 'agregar'} el proyecto: ${err.message}`;
-        console.error(`${this.editingProjectId ? 'Update' : 'Add'} project error:`, err);
+        this.errorMessage = `Error al guardar: ${err.message}`;
       }
     });
   }
 
   onUploadProjectLogo(projectId: number | null | undefined): void {
-    if (!this.selectedFile || projectId === null || projectId === undefined) {
-      this.imageErrorMessage = 'Por favor, selecciona un archivo y asegúrate de que el proyecto tenga un ID.';
-      return;
-    }
-
+    if (!this.selectedFile || !projectId) return;
     this.uploadingImage = true;
-    this.imageErrorMessage = '';
-
     this.proyectoService.uploadProjectLogo(projectId, this.selectedFile).subscribe({
       next: () => {
         this.uploadingImage = false;
-        this.loadProjectData();
-        this.cancelAddProject(); // Close the form automatically
+        this.cancelAddProject();
       },
       error: (err) => {
         this.uploadingImage = false;
-        this.imageErrorMessage = `Error al subir la imagen del proyecto: ${err.message || 'Error desconocido'}. Consulta la consola para más detalles.`;
-        console.error('ERROR during Project Image Upload:', err);
+        this.imageErrorMessage = `Error al subir logo: ${err.message}`;
       }
     });
   }
@@ -217,12 +314,8 @@ export class ProjectsComponent implements OnInit, OnDestroy {
 
   getFullImageUrl(relativeUrl: string | null | undefined): string {
     if (relativeUrl && relativeUrl.trim() !== '') {
-      if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://') || relativeUrl.startsWith('data:')) {
-        return relativeUrl;
-      }
-      let baseUrl = this.backendUrl.endsWith('/') ? this.backendUrl : `${this.backendUrl}/`;
-      let cleanRelativeUrl = relativeUrl.startsWith('/') ? relativeUrl.substring(1) : relativeUrl;
-      return `${baseUrl}${cleanRelativeUrl}`;
+      if (relativeUrl.startsWith('http') || relativeUrl.startsWith('data:')) return relativeUrl;
+      return `${this.backendUrl}${relativeUrl.startsWith('/') ? '' : '/'}${relativeUrl}`;
     }
     return 'assets/img/icono-de-proyecto-default.webp';
   }

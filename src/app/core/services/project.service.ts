@@ -3,7 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Proyecto, ProyectoDto } from 'src/app/models/project.model';
-import { Herramienta } from 'src/app/models/tools.model';
+import { Herramienta, ProyectoHerramientasDto } from 'src/app/models/tools.model';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
@@ -88,13 +88,25 @@ export class ProyectoService {
 
   /**
    * Adds tools to a project.
-   * POST /proyecto/{id}/herramientas
-   * @param proyectoId The ID of the project.
-   * @param herramientas An array of Herramienta objects to add.
+   * POST /proyecto/herramientas
+   * @param payload The ProyectoHerramientasDto containing project ID and tool requests.
    * @returns An Observable of the updated ProyectoDto.
    */
-  public addHerramientasToProyecto(proyectoId: number, herramientas: Herramienta[]): Observable<ProyectoDto> {
-    return this.http.post<ProyectoDto>(`${this.URL_API}/${proyectoId}/herramientas`, herramientas).pipe(
+  public addHerramientasToProyecto(payload: ProyectoHerramientasDto): Observable<ProyectoDto> {
+    return this.http.post<ProyectoDto>(`${this.URL_API}/herramientas`, payload).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Removes a tool from a project.
+   * DELETE /proyecto/{proyectoId}/herramientas/{herramientaId}
+   * @param proyectoId The ID of the project.
+   * @param herramientaId The ID of the tool to remove.
+   * @returns An Observable of the updated ProyectoDto.
+   */
+  public deleteHerramientaFromProyecto(proyectoId: number, herramientaId: number): Observable<ProyectoDto> {
+    return this.http.delete<ProyectoDto>(`${this.URL_API}/${proyectoId}/herramientas/${herramientaId}`).pipe(
       catchError(this.handleError)
     );
   }
