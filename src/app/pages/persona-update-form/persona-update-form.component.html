@@ -33,6 +33,14 @@
             </div>
 
             <div>
+                <label for="profesion">Profesión:</label>
+                <input type="text" id="profesion" formControlName="profesion" placeholder="Tu Profesión (ej: Desarrollador Fullstack)">
+                <div *ngIf="profesion?.invalid && (profesion?.dirty || profesion?.touched)" class="error">
+                    <p *ngIf="profesion?.errors?.['required']">La profesión es obligatoria.</p>
+                </div>
+            </div>
+
+            <div>
                 <label for="descripcion_mi">Sobre Mí:</label>
                 <textarea id="descripcion_mi" formControlName="descripcion_mi" rows="5" placeholder="Una breve descripción sobre ti"></textarea>
                 <div *ngIf="descripcion_mi?.invalid && (descripcion_mi?.dirty || descripcion_mi?.touched)" class="error">

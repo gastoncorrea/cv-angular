@@ -5,8 +5,10 @@ import { Educacion } from 'src/app/models/education.model'; // Import Educacion
 import { ProyectoService } from 'src/app/core/services/project.service'; // Import ProyectoService
 import { EducacionService } from 'src/app/core/services/education.service'; // Import EducacionService
 import { AuthService } from 'src/app/auth.service'; // Import AuthService
-import { Subscription, forkJoin } from 'rxjs'; // Import forkJoin
+import { DataRefreshService } from 'src/app/core/services/data-refresh.service'; // Import DataRefreshService
+import { Subscription, forkJoin, of, throwError } from 'rxjs'; // Import forkJoin, of, throwError
 import { environment } from 'src/environments/environment'; // Import environment
+import { catchError } from 'rxjs/operators'; // Import catchError
 
 @Component({
   selector: 'app-skills',
@@ -21,19 +23,28 @@ export class SkillsComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   errorMessage: string | undefined;
   private dataSubscription: Subscription | undefined;
+  private refreshSubscription: Subscription | undefined;
   private readonly PUBLIC_PERSONA_ID = 1; // Assuming a fixed ID for the public persona profile
   backendUrl: string; // Declare backendUrl property
 
   constructor(
     private proyectoService: ProyectoService,
     private educacionService: EducacionService,
-    private authService: AuthService // Inject AuthService
+    private authService: AuthService,
+    private refreshService: DataRefreshService
   ) {
     this.backendUrl = environment.backendUrl; // Initialize in constructor
   }
 
   ngOnInit(): void {
     this.loadAllUsageData();
+    this.subscribeToRefresh();
+  }
+
+  private subscribeToRefresh(): void {
+    this.refreshSubscription = this.refreshService.refreshSkills$.subscribe(() => {
+      this.loadAllUsageData();
+    });
   }
 
   loadAllUsageData(): void {
@@ -41,8 +52,18 @@ export class SkillsComponent implements OnInit, OnDestroy {
     this.errorMessage = undefined;
 
     this.dataSubscription = forkJoin([
-      this.proyectoService.getProyectoByPersonaId(this.PUBLIC_PERSONA_ID),
-      this.educacionService.getEducacionByPersonaId(this.PUBLIC_PERSONA_ID)
+      this.proyectoService.getProyectoByPersonaId(this.PUBLIC_PERSONA_ID).pipe(
+        catchError(error => {
+          if (error.message.includes('404')) return of([]);
+          return throwError(() => error);
+        })
+      ),
+      this.educacionService.getEducacionByPersonaId(this.PUBLIC_PERSONA_ID).pipe(
+        catchError(error => {
+          if (error.message.includes('404')) return of([]);
+          return throwError(() => error);
+        })
+      )
     ]).subscribe({
       next: ([proyectos, educacion]) => {
         this.allProjects = proyectos;
@@ -62,72 +83,82 @@ export class SkillsComponent implements OnInit, OnDestroy {
     if (this.dataSubscription) {
       this.dataSubscription.unsubscribe();
     }
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+    }
   }
 
   // Method to construct the full image URL
   getFullImageUrl(relativeUrl: string | null | undefined): string {
     if (relativeUrl && relativeUrl.trim() !== '') {
-      // Check if the relativeUrl is already an absolute URL or a data URL
-      if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://') || relativeUrl.startsWith('data:')) {
-        return relativeUrl;
+      if (relativeUrl.startsWith('http') || relativeUrl.startsWith('data:')) return relativeUrl;
+      
+      let path = relativeUrl;
+      if (!path.startsWith('/') && !path.startsWith('uploads/')) {
+        path = '/uploads/' + path;
+      } else if (path.startsWith('uploads/')) {
+        path = '/' + path;
       }
-      return `${this.backendUrl}${relativeUrl}`;
+      
+      return `${this.backendUrl}${path}`;
     }
-    return 'assets/img/icono-de-herramienta-logo.webp'; // Return default image if no valid logo URL
+    return 'assets/img/icono-de-herramienta-logo.webp';
   }
 
   processSkillsData(): void {
     const toolUsageMap = new Map<number | string, { herramienta: Herramienta, count: number }>();
-    let totalToolUsages = 0;
+    const totalExperienceItems = this.allProjects.length + this.allEducation.length;
 
-    // Aggregate tools from projects
+    // Contar presencia de herramientas en cada proyecto
     this.allProjects.forEach(proyecto => {
+      const toolsInThisProject = new Set<number | string>();
       proyecto.herramientas?.forEach(herramienta => {
         if (herramienta.id_herramienta || herramienta.nombre) {
-          const key = herramienta.id_herramienta ?? herramienta.nombre; // Use ID if available, otherwise name
-          totalToolUsages++;
-          if (toolUsageMap.has(key)) {
-            toolUsageMap.get(key)!.count++;
-          } else {
-            toolUsageMap.set(key, { herramienta: herramienta, count: 1 });
+          const key = herramienta.id_herramienta ?? herramienta.nombre;
+          if (!toolsInThisProject.has(key)) {
+            toolsInThisProject.add(key);
+            if (toolUsageMap.has(key)) {
+              toolUsageMap.get(key)!.count++;
+            } else {
+              toolUsageMap.set(key, { herramienta: herramienta, count: 1 });
+            }
           }
         }
       });
     });
 
-    // Aggregate tools from education
+    // Contar presencia de herramientas en cada educación
     this.allEducation.forEach(educacion => {
+      const toolsInThisEducation = new Set<number | string>();
       educacion.herramientas?.forEach(herramienta => {
         if (herramienta.id_herramienta || herramienta.nombre) {
-          const key = herramienta.id_herramienta ?? herramienta.nombre; // Use ID if available, otherwise name
-          totalToolUsages++;
-          if (toolUsageMap.has(key)) {
-            toolUsageMap.get(key)!.count++;
-          } else {
-            toolUsageMap.set(key, { herramienta: herramienta, count: 1 });
+          const key = herramienta.id_herramienta ?? herramienta.nombre;
+          if (!toolsInThisEducation.has(key)) {
+            toolsInThisEducation.add(key);
+            if (toolUsageMap.has(key)) {
+              toolUsageMap.get(key)!.count++;
+            } else {
+              toolUsageMap.set(key, { herramienta: herramienta, count: 1 });
+            }
           }
         }
       });
     });
 
     this.skillsWithProgress = [];
-    if (totalToolUsages > 0) {
+    if (totalExperienceItems > 0) {
       toolUsageMap.forEach(entry => {
-        const percentage = (entry.count / totalToolUsages) * 100;
+        // El porcentaje es (veces que aparece la herramienta / total de proyectos + educaciones) * 100
+        const percentage = (entry.count / totalExperienceItems) * 100;
         this.skillsWithProgress.push({
           herramienta: entry.herramienta,
           usageCount: entry.count,
-          percentage: parseFloat(percentage.toFixed(2)) // Round to 2 decimal places
+          percentage: parseFloat(percentage.toFixed(2)) // Redondear a 2 decimales
         });
       });
     }
 
-    // Sort by percentage (descending) or by name
-    this.skillsWithProgress.sort((a, b) => {
-      if (a.percentage !== b.percentage) {
-        return b.percentage - a.percentage; // Higher percentage first
-      }
-      return a.herramienta.nombre.localeCompare(b.herramienta.nombre); // Alphabetical by name
-    });
+    // Ordenar por porcentaje (descendente)
+    this.skillsWithProgress.sort((a, b) => b.percentage - a.percentage || a.herramienta.nombre.localeCompare(b.herramienta.nombre));
   }
 }

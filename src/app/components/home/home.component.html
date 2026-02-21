@@ -2,6 +2,14 @@
     <div *ngIf="isLoading" class="loading-message">Cargando datos personales...</div>
     <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
+    <div *ngIf="!persona && !isLoading && !errorMessage" class="maintenance-container">
+        <div class="maintenance-content">
+            <i class="fa-solid fa-screwdriver-wrench maintenance-icon"></i>
+            <h2>CV en Mantenimiento</h2>
+            <p>Estamos actualizando la información profesional. Por favor, vuelve a visitarnos pronto.</p>
+        </div>
+    </div>
+
     <ng-container *ngIf="persona && !isLoading">
         <app-personal-data [personalData]="persona" (onUploadSuccess)="loadPersonaData()"></app-personal-data>
         <app-contacts [contacts]="persona.contactos" [personaId]="persona.id_persona" (onContactAdded)="loadPersonaData()"></app-contacts>

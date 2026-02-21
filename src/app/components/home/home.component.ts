@@ -28,13 +28,23 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.errorMessage = undefined;
     this.personaSubscription = this.personaService.getPersona(this.PUBLIC_PERSONA_ID).subscribe({
       next: (data: Persona) => {
-        this.persona = data;
+        // Si data es null o no tiene campos esenciales, lo tratamos como sin datos
+        if (!data || (!data.nombre && !data.apellido)) {
+          this.persona = undefined;
+        } else {
+          this.persona = data;
+        }
         this.isLoading = false;
         console.log('Datos de Persona recibidos en HomeComponent:', data);
-        console.log('Datos de Contactos recibidos en HomeComponent:', data.contactos);
       },
-      error: (error) => {
-        this.errorMessage = `Error al cargar los datos personales: ${error.message}`;
+      error: (error: Error) => {
+        // Si el error es un 404, no mostramos error sino que dejamos persona como undefined (mantenimiento)
+        if (error.message.includes('404')) {
+          this.persona = undefined;
+          this.errorMessage = undefined;
+        } else {
+          this.errorMessage = `Error al cargar los datos personales: ${error.message}`;
+        }
         this.isLoading = false;
         console.error('Error en HomeComponent al cargar Persona:', error);
       }

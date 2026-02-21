@@ -27,6 +27,7 @@ export class PersonaUpdateFormComponent implements OnInit {
     this.personaForm = this.fb.group({
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
+      profesion: ['', Validators.required],
       descripcion_mi: ['', Validators.required],
       fecha_nacimiento: ['', Validators.required],
       num_celular: ['', Validators.required],
@@ -58,6 +59,7 @@ export class PersonaUpdateFormComponent implements OnInit {
         this.personaForm.patchValue({
           nombre: data.nombre,
           apellido: data.apellido,
+          profesion: data.profesion,
           descripcion_mi: data.descripcion_mi,
           fecha_nacimiento: data.fecha_nacimiento,
           num_celular: data.num_celular
@@ -91,6 +93,7 @@ export class PersonaUpdateFormComponent implements OnInit {
     const updatedPersona: Omit<PersonaDto, 'id_persona' | 'imagenUrl'> = {
       nombre: this.personaForm.get('nombre')?.value,
       apellido: this.personaForm.get('apellido')?.value,
+      profesion: this.personaForm.get('profesion')?.value,
       descripcion_mi: this.personaForm.get('descripcion_mi')?.value,
       fecha_nacimiento: this.personaForm.get('fecha_nacimiento')?.value,
       num_celular: this.personaForm.get('num_celular')?.value,
@@ -119,6 +122,7 @@ export class PersonaUpdateFormComponent implements OnInit {
   // Getters para fácil acceso en la plantilla
   get nombre() { return this.personaForm.get('nombre'); }
   get apellido() { return this.personaForm.get('apellido'); }
+  get profesion() { return this.personaForm.get('profesion'); }
   get descripcion_mi() { return this.personaForm.get('descripcion_mi'); }
   get fecha_nacimiento() { return this.personaForm.get('fecha_nacimiento'); }
   get num_celular() { return this.personaForm.get('num_celular'); }

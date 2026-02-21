@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { Educacion, EducacionDto } from 'src/app/models/education.model';
 import { EducacionService } from 'src/app/core/services/education.service';
 import { HerramientaService } from 'src/app/core/services/tool.service';
@@ -8,14 +8,18 @@ import { Observable, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from 'src/app/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { DataRefreshService } from 'src/app/core/services/data-refresh.service';
 
 @Component({
   selector: 'app-education',
   templateUrl: './education.component.html',
   styleUrls: ['./education.component.css']
 })
-export class EducationComponent implements OnInit, OnDestroy {
-  education: Educacion[] | undefined;
+export class EducationComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() education: Educacion[] | undefined;
+  @Input() personaId: number | undefined;
+  @Output() onEducationAdded = new EventEmitter<void>();
+
   isLoading: boolean = false;
   errorMessage: string | undefined;
   private educationSubscription: Subscription | undefined;
@@ -44,15 +48,57 @@ export class EducationComponent implements OnInit, OnDestroy {
     private educationService: EducacionService,
     private herramientaService: HerramientaService,
     private formService: FormManagementService,
-    public authService: AuthService
+    public authService: AuthService,
+    private refreshService: DataRefreshService
   ) {
     this.backendUrl = environment.backendUrl;
   }
 
   ngOnInit(): void {
-    this.loadEducationData();
     this.loadAllTools();
     this.subscribeToFormService();
+    
+    // Si no vienen datos por Input, los cargamos nosotros
+    if (!this.education) {
+      this.loadEducationData();
+    }
+    
+    if (this.personaId) {
+      this.newEducation.persona = { id_persona: this.personaId };
+    } else {
+      this.newEducation.persona = { id_persona: this.PUBLIC_PERSONA_ID };
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['personaId'] && this.personaId) {
+      this.newEducation.persona = { id_persona: this.personaId };
+    }
+    // Si el Input cambia, actualizamos nuestra lista local
+    if (changes['education'] && this.education) {
+      // No necesitamos hacer nada extra, ya que usamos la propiedad directamente en el HTML
+    }
+  }
+
+  loadEducationData(): void {
+    this.isLoading = true;
+    this.errorMessage = undefined;
+    const idToFetch = this.personaId || this.PUBLIC_PERSONA_ID;
+    
+    this.educationSubscription = this.educationService.getEducacionByPersonaId(idToFetch).subscribe({
+      next: (data) => {
+        this.education = data;
+        this.isLoading = false;
+      },
+      error: (error: Error) => {
+        if (error.message.includes('404')) {
+          this.education = [];
+        } else {
+          this.errorMessage = `Error al cargar educación: ${error.message}`;
+        }
+        this.isLoading = false;
+      }
+    });
   }
 
   private subscribeToFormService(): void {
@@ -163,7 +209,8 @@ export class EducationComponent implements OnInit, OnDestroy {
     this.selectedEducationIdForTool = null;
     this.formService.closeAll();
     this.loadEducationData();
-    this.loadAllTools();
+    this.onEducationAdded.emit();
+    this.refreshService.triggerSkillsRefresh();
   }
 
   editEducation(edu: Educacion): void {
@@ -184,6 +231,8 @@ export class EducationComponent implements OnInit, OnDestroy {
         next: () => {
           this.isLoading = false;
           this.loadEducationData();
+          this.onEducationAdded.emit();
+          this.refreshService.triggerSkillsRefresh();
         },
         error: (err) => {
           this.isLoading = false;
@@ -209,24 +258,12 @@ export class EducationComponent implements OnInit, OnDestroy {
       next: () => {
         this.isLoading = false;
         this.loadEducationData();
+        this.onEducationAdded.emit();
+        this.refreshService.triggerSkillsRefresh();
       },
       error: (err) => {
         this.isLoading = false;
         this.errorMessage = `Error: ${err.message}`;
-      }
-    });
-  }
-
-  loadEducationData(): void {
-    this.isLoading = true;
-    this.educationSubscription = this.educationService.getEducacionByPersonaId(this.PUBLIC_PERSONA_ID).subscribe({
-      next: (data) => {
-        this.education = data;
-        this.isLoading = false;
-      },
-      error: (error) => {
-        this.isLoading = false;
-        this.errorMessage = `Error: ${error.message}`;
       }
     });
   }
@@ -243,7 +280,8 @@ export class EducationComponent implements OnInit, OnDestroy {
     } else {
       this.formService.openForm('edu-form');
       this.newEducation = { nombre_institucion: '', logo_imagen: '', fecha_inicio: '', fecha_fin: '', titulo: '', url_titulo: '' };
-      this.newEducation.persona = { id_persona: this.PUBLIC_PERSONA_ID };
+      const idForNew = this.personaId || this.PUBLIC_PERSONA_ID;
+      this.newEducation.persona = { id_persona: idForNew };
       this.savedEducationId = null;
       this.editingEducationId = null;
       this.cancelImageUpload();
@@ -251,9 +289,12 @@ export class EducationComponent implements OnInit, OnDestroy {
   }
 
   cancelAddEducation(): void {
+    if (this.savedEducationId) {
+      this.loadEducationData();
+      this.onEducationAdded.emit();
+    }
     this.showAddEducationForm = false;
     this.formService.closeAll();
-    this.loadEducationData();
   }
 
   onFileSelected(event: any): void {
@@ -308,7 +349,16 @@ export class EducationComponent implements OnInit, OnDestroy {
   getFullImageUrl(relativeUrl: string | null | undefined): string {
     if (relativeUrl && relativeUrl.trim() !== '') {
       if (relativeUrl.startsWith('http') || relativeUrl.startsWith('data:')) return relativeUrl;
-      return `${this.backendUrl}${relativeUrl.startsWith('/') ? '' : '/'}${relativeUrl.startsWith('uploads/') ? '' : 'uploads/'}${relativeUrl}`;
+      
+      // Asegurar que la URL relativa empiece con / si no es el caso
+      let path = relativeUrl;
+      if (!path.startsWith('/') && !path.startsWith('uploads/')) {
+        path = '/uploads/' + path;
+      } else if (path.startsWith('uploads/')) {
+        path = '/' + path;
+      }
+      
+      return `${this.backendUrl}${path}`;
     }
     return 'assets/img/logo_default_education.jpg';
   }

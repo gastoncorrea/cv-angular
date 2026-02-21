@@ -8,6 +8,7 @@ import { Observable, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from 'src/app/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { DataRefreshService } from 'src/app/core/services/data-refresh.service';
 
 @Component({
   selector: 'app-projects',
@@ -44,7 +45,8 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     private proyectoService: ProyectoService,
     private herramientaService: HerramientaService,
     private formService: FormManagementService,
-    public authService: AuthService
+    public authService: AuthService,
+    private refreshService: DataRefreshService
   ) {
     this.backendUrl = environment.backendUrl;
   }
@@ -170,6 +172,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     this.formService.closeAll();
     this.loadProjectData();
     this.loadAllTools();
+    this.refreshService.triggerSkillsRefresh();
   }
 
   editProject(project: Proyecto): void {
@@ -191,6 +194,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
         next: () => {
           this.isLoading = false;
           this.loadProjectData();
+          this.refreshService.triggerSkillsRefresh();
         },
         error: (err: HttpErrorResponse) => {
           this.isLoading = false;
@@ -216,6 +220,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
       next: () => {
         this.isLoading = false;
         this.loadProjectData();
+        this.refreshService.triggerSkillsRefresh();
       },
       error: (err) => {
         this.isLoading = false;

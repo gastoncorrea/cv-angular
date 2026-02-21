@@ -8,6 +8,7 @@ export interface Persona {
     id_persona?: number;
     nombre: string;
     apellido: string;
+    profesion: string;
     imagenUrl?: string;
     descripcion_mi: string;
     fecha_nacimiento: string; // "string (date)" in OpenAPI
@@ -24,6 +25,7 @@ export interface PersonaDto {
     id_persona?: number;
     nombre: string;
     apellido: string;
+    profesion: string;
     imagenUrl?: string;
     descripcion_mi: string;
     fecha_nacimiento: string;

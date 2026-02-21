@@ -1,78 +1,79 @@
 <div class="component">
-    <div class="title">
+    <div class="title-list">
         <h4>Contactos</h4>
     </div>
-    <ng-container *ngIf="contacts && contacts.length > 0">
-        <div class="edit-buttons-container">
-            <div class="edit-buttons" *ngIf="authService.isLoggedIn() | async">
-                <button class="btn btn-add" (click)="toggleAddContactForm()">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
-            </div>
+
+    <div class="edit-buttons-container">
+        <div class="edit-buttons" *ngIf="authService.isLoggedIn() | async">
+            <button class="btn btn-add" (click)="toggleAddContactForm()">
+                <i class="fa-solid fa-plus"></i>
+            </button>
         </div>
+    </div>
 
-        <!-- Unified Form for Adding and Editing a Contact -->
-        <div *ngIf="showAddContactForm" class="add-form-container">
-            <h3>
-                <ng-container *ngIf="!savedContactId">{{ editingContactId ? 'Editar Contacto' : 'Agregar Nuevo Contacto' }}</ng-container>
-                <ng-container *ngIf="savedContactId">{{ editingContactId ? 'Editar Logo del Contacto' : 'Subir Logo para Contacto' }}</ng-container>
-            </h3>
+    <!-- Unified Form for Adding and Editing a Contact -->
+    <div *ngIf="showAddContactForm" class="add-form-container">
+        <h3>
+            <ng-container *ngIf="!savedContactId">{{ editingContactId ? 'Editar Contacto' : 'Agregar Nuevo Contacto' }}</ng-container>
+            <ng-container *ngIf="savedContactId">{{ editingContactId ? 'Editar Logo del Contacto' : 'Subir Logo para Contacto' }}</ng-container>
+        </h3>
+        
+        <form #addContactForm="ngForm">
+            <!-- Text Inputs -->
+            <div class="form-group">
+                <label for="nombre">Nombre de la Red:</label>
+                <input type="text" id="nombre" [(ngModel)]="newContact.nombre" name="nombre" required [disabled]="!!savedContactId">
+            </div>
+            <div class="form-group">
+                <label for="url_contacto">URL del Contacto:</label>
+                <input type="url" id="url_contacto" [(ngModel)]="newContact.url_contacto" name="url_contacto" required [disabled]="!!savedContactId">
+            </div>
             
-            <form #addContactForm="ngForm">
-                <!-- Text Inputs -->
-                <div class="form-group">
-                    <label for="nombre">Nombre de la Red:</label>
-                    <input type="text" id="nombre" [(ngModel)]="newContact.nombre" name="nombre" required [disabled]="!!savedContactId">
-                </div>
-                <div class="form-group">
-                    <label for="url_contacto">URL del Contacto:</label>
-                    <input type="url" id="url_contacto" [(ngModel)]="newContact.url_contacto" name="url_contacto" required [disabled]="!!savedContactId">
-                </div>
-                
-                <div *ngIf="errorMessage" class="alert alert-danger mt-2">
-                    {{ errorMessage }}
-                </div>
+            <div *ngIf="errorMessage" class="alert alert-danger mt-2">
+                {{ errorMessage }}
+            </div>
 
-                <!-- Image Upload Section (conditionally shown) -->
-                <ng-container *ngIf="savedContactId">
-                    <div class="image-upload-section">
-                        <div class="form-group">
-                            <input type="file" accept="image/*" (change)="onFileSelected($event)" class="form-control-file">
-                        </div>
-                        <div *ngIf="previewUrl" class="image-preview-container">
-                            <img [src]="previewUrl" alt="Vista previa del logo" class="image-preview">
-                        </div>
-                        <div *ngIf="imageErrorMessage" class="alert alert-danger mt-2">
-                            {{ imageErrorMessage }}
-                        </div>
+            <!-- Image Upload Section (conditionally shown) -->
+            <ng-container *ngIf="savedContactId">
+                <div class="image-upload-section">
+                    <div class="form-group">
+                        <input type="file" accept="image/*" (change)="onFileSelected($event)" class="form-control-file">
                     </div>
+                    <div *ngIf="previewUrl" class="image-preview-container">
+                        <img [src]="previewUrl" alt="Vista previa del logo" class="image-preview">
+                    </div>
+                    <div *ngIf="imageErrorMessage" class="alert alert-danger mt-2">
+                        {{ imageErrorMessage }}
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- Unified Form Actions -->
+            <div class="form-actions">
+                <!-- Actions for Step 1: Text Data -->
+                <ng-container *ngIf="!savedContactId">
+                     <button type="button" class="btn btn-primary" (click)="onSaveContact()" [disabled]="!addContactForm.valid || isLoading">
+                        <span *ngIf="!isLoading">{{ editingContactId ? 'Guardar Cambios' : 'Guardar Contacto' }}</span>
+                        <span *ngIf="isLoading"><i class="fa fa-spinner fa-spin"></i> Guardando...</span>
+                    </button>
                 </ng-container>
 
-                <!-- Unified Form Actions -->
-                <div class="form-actions">
-                    <!-- Actions for Step 1: Text Data -->
-                    <ng-container *ngIf="!savedContactId">
-                         <button type="button" class="btn btn-primary" (click)="onSaveContact()" [disabled]="!addContactForm.valid || isLoading">
-                            <span *ngIf="!isLoading">{{ editingContactId ? 'Guardar Cambios' : 'Guardar Contacto' }}</span>
-                            <span *ngIf="isLoading"><i class="fa fa-spinner fa-spin"></i> Guardando...</span>
-                        </button>
-                    </ng-container>
-
-                    <!-- Actions for Step 2: Image Upload -->
-                    <ng-container *ngIf="savedContactId">
-                        <button type="button" class="btn btn-primary" (click)="onUploadContactLogo(savedContactId)" [disabled]="!selectedFile || uploadingImage">
-                            <span *ngIf="!uploadingImage">Subir Logo</span>
-                            <span *ngIf="uploadingImage"><i class="fa fa-spinner fa-spin"></i> Subiendo...</span>
-                        </button>
-                    </ng-container>
-                    
-                    <button type="button" class="btn btn-secondary" (click)="cancelAddContact()" [disabled]="isLoading || uploadingImage">
-                        {{ savedContactId ? 'Finalizar' : 'Cancelar' }}
+                <!-- Actions for Step 2: Image Upload -->
+                <ng-container *ngIf="savedContactId">
+                    <button type="button" class="btn btn-primary" (click)="onUploadContactLogo(savedContactId)" [disabled]="!selectedFile || uploadingImage">
+                        <span *ngIf="!uploadingImage">Subir Logo</span>
+                        <span *ngIf="uploadingImage"><i class="fa fa-spinner fa-spin"></i> Subiendo...</span>
                     </button>
-                </div>
-            </form>
-        </div>
+                </ng-container>
+                
+                <button type="button" class="btn btn-secondary" (click)="cancelAddContact()" [disabled]="isLoading || uploadingImage">
+                    {{ savedContactId ? 'Finalizar' : 'Cancelar' }}
+                </button>
+            </div>
+        </form>
+    </div>
 
+    <ng-container *ngIf="contacts && contacts.length > 0; else noContacts">
         <div class="iconos-contacto">
             <div class="contacto" *ngFor="let contact of contacts">
                 <div class="contacto-info">
@@ -96,7 +97,7 @@
             </div>
         </div>
     </ng-container>
-    <div *ngIf="!contacts || contacts.length === 0">
+    <ng-template #noContacts>
         <p>No hay contactos disponibles.</p>
-    </div>
+    </ng-template>
 </div>
