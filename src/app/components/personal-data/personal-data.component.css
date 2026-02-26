@@ -190,6 +190,14 @@
     margin-top: 15px;
 }
 
+.error {
+    color: red;
+    font-size: 0.8em;
+    margin-top: -5px;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
 /* --- Estilos para el formulario de agregar/editar (Estilo estándar) --- */
 .add-form-container {
     border: 2px solid #AB77FF44;

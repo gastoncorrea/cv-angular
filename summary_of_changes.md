@@ -89,6 +89,16 @@ This document summarizes the significant modifications made to the project.
     *   Replaced `<app-skills>` with `<app-tools>` and updated the input binding from `[skills]` to `[tools]` for displaying project tools.
 *   **`projects.component.css`**: Added CSS rules for `.project-header` and `.project-logo` to properly display and align the new project logo.
 
+### 4. Ordenamiento de Registros (LÃ³gica de VisualizaciÃ³n)
+
+Se implementÃ³ una lÃ³gica de ordenamiento descendente en el frontend para mejorar la relevancia de la informaciÃ³n mostrada, asegurando que los registros mÃ¡s recientes aparezcan primero.
+
+*   **`EducationComponent` (`education.component.ts`)**:
+    *   Se modificÃ³ el mÃ©todo `loadEducationData` para aplicar `.reverse()` al arreglo de datos recibido del servicio. Esto invierte el orden natural (ID ascendente) de la base de datos, mostrando la educaciÃ³n mÃ¡s reciente al principio de la lista.
+
+*   **`ProjectsComponent` (`projects.component.ts`)**:
+    *   Se modificÃ³ el mÃ©todo `loadProjectData` para aplicar `.reverse()` a la lista de proyectos. Al igual que en educaciÃ³n, esto garantiza que el Ãºltimo proyecto registrado sea el primero en visualizarse.
+
 #### 3. `SkillsComponent` Development and Fixes
 
 *   **`skills.component.ts`**:
@@ -111,17 +121,17 @@ This document summarizes the significant modifications made to the project.
     *   Includes a link to the tool's URL if available.
 *   **`skills.component.css`**:
     *   Added styling for `.progress-bar-container`, `.progress-bar`, and `.progress-text` to visually represent the skill progress.
-### Refactorización del Formulario de Actualización de Persona (PersonaUpdateFormComponent)
+### Refactorizaciï¿½n del Formulario de Actualizaciï¿½n de Persona (PersonaUpdateFormComponent)
 
-Esta serie de cambios alinea el formulario de actualización de Persona con los requisitos del backend y simplifica su interfaz de usuario basándose en las solicitudes del usuario.
+Esta serie de cambios alinea el formulario de actualizaciï¿½n de Persona con los requisitos del backend y simplifica su interfaz de usuario basï¿½ndose en las solicitudes del usuario.
 
 *   **persona-update-form.component.ts**:
-    *   Se eliminó toda la lógica relacionada con la gestión, carga o visualización de la imagen de perfil (currentImagenUrl, getFullImageUrl, ackendUrl, etc.).
-    *   El método onSubmit fue simplificado para que se encargue exclusivamente de enviar los datos de texto del formulario (
+    *   Se eliminï¿½ toda la lï¿½gica relacionada con la gestiï¿½n, carga o visualizaciï¿½n de la imagen de perfil (currentImagenUrl, getFullImageUrl, ackendUrl, etc.).
+    *   El mï¿½todo onSubmit fue simplificado para que se encargue exclusivamente de enviar los datos de texto del formulario (
 ombre, pellido, descripcion_mi, etc.) al endpoint updatePersona del servicio.
 
 *   **persona-update-form.component.html**:
-    *   Se eliminó por completo la sección dedicada a mostrar la imagen de perfil. El formulario ahora solo contiene los campos de entrada para los datos de la persona.
+    *   Se eliminï¿½ por completo la secciï¿½n dedicada a mostrar la imagen de perfil. El formulario ahora solo contiene los campos de entrada para los datos de la persona.
 
 *   **persona-update-form.component.css**:
-    *   Se eliminaron todos los estilos CSS que estaban asociados a la visualización de la imagen de perfil (.profile-image-section, .image-container, .profile-picture-preview), dejando el archivo más limpio y específico para los elementos restantes.
+    *   Se eliminaron todos los estilos CSS que estaban asociados a la visualizaciï¿½n de la imagen de perfil (.profile-image-section, .image-container, .profile-picture-preview), dejando el archivo mï¿½s limpio y especï¿½fico para los elementos restantes.

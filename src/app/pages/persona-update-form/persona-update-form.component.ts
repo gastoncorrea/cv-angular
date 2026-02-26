@@ -27,7 +27,7 @@ export class PersonaUpdateFormComponent implements OnInit {
     this.personaForm = this.fb.group({
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
-      profesion: ['', Validators.required],
+      profesion: ['', [Validators.required, Validators.maxLength(50)]],
       descripcion_mi: ['', Validators.required],
       fecha_nacimiento: ['', Validators.required],
       num_celular: ['', Validators.required],

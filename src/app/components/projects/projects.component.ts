@@ -233,7 +233,7 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.projectsSubscription = this.proyectoService.getProyectoByPersonaId(this.PUBLIC_PERSONA_ID).subscribe({
       next: (data: ProyectoDto[]) => {
-        this.projects = data;
+        this.projects = data.reverse();
         this.isLoading = false;
       },
       error: (error) => {

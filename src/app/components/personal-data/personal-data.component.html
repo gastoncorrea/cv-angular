@@ -49,6 +49,19 @@
             </div>
 
             <div class="form-group">
+                <label for="profesion">Profesión:</label>
+                <input type="text" id="profesion" formControlName="profesion" class="form-control">
+                <div *ngIf="personaForm.get('profesion')?.invalid && (personaForm.get('profesion')?.dirty || personaForm.get('profesion')?.touched)" class="error">
+                    <small *ngIf="personaForm.get('profesion')?.errors?.['required']" class="text-danger">
+                        La profesión es obligatoria.
+                    </small>
+                    <small *ngIf="personaForm.get('profesion')?.errors?.['maxlength']" class="text-danger">
+                        La profesión no puede tener más de 50 caracteres.
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label for="descripcion_mi">Sobre Mí:</label>
                 <textarea id="descripcion_mi" formControlName="descripcion_mi" rows="4" class="form-control"></textarea>
             </div>
@@ -90,7 +103,7 @@
 
     <div class="personal-info-text">
         <h1>{{ personalData.nombre }} {{ personalData.apellido }}</h1>
-        <h3>PROGRAMMER</h3>
+        <h3 *ngIf="personalData.profesion">{{ personalData.profesion | uppercase }}</h3>
         <p>
             {{ calculateAge(personalData.fecha_nacimiento) }} Años
             <span *ngIf="personalData.num_celular"> | {{ personalData.num_celular }}</span>

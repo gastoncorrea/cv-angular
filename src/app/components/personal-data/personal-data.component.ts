@@ -39,6 +39,7 @@ export class PersonalDataComponent implements OnInit, OnDestroy {
     this.personaForm = this.fb.group({
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
+      profesion: ['', [Validators.required, Validators.maxLength(50)]],
       descripcion_mi: ['', Validators.required],
       fecha_nacimiento: ['', Validators.required],
       num_celular: ['', Validators.required],
@@ -75,6 +76,7 @@ export class PersonalDataComponent implements OnInit, OnDestroy {
       this.personaForm.patchValue({
         nombre: this.personalData.nombre,
         apellido: this.personalData.apellido,
+        profesion: this.personalData.profesion,
         descripcion_mi: this.personalData.descripcion_mi,
         fecha_nacimiento: this.personalData.fecha_nacimiento,
         num_celular: this.personalData.num_celular

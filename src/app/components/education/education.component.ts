@@ -87,7 +87,7 @@ export class EducationComponent implements OnInit, OnDestroy, OnChanges {
     
     this.educationSubscription = this.educationService.getEducacionByPersonaId(idToFetch).subscribe({
       next: (data) => {
-        this.education = data;
+        this.education = data.reverse();
         this.isLoading = false;
       },
       error: (error: Error) => {
