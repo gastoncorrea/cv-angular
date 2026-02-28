@@ -21,6 +21,8 @@
                 <input type="text" id="nombre" formControlName="nombre" placeholder="Tu Nombre">
                 <div *ngIf="nombre?.invalid && (nombre?.dirty || nombre?.touched)" class="error">
                     <p *ngIf="nombre?.errors?.['required']">El nombre es obligatorio.</p>
+                    <p *ngIf="nombre?.errors?.['minlength']">El nombre debe tener al menos 2 caracteres.</p>
+                    <p *ngIf="nombre?.errors?.['maxlength']">El nombre no puede tener más de 50 caracteres.</p>
                 </div>
             </div>
 
@@ -29,6 +31,8 @@
                 <input type="text" id="apellido" formControlName="apellido" placeholder="Tu Apellido">
                 <div *ngIf="apellido?.invalid && (apellido?.dirty || apellido?.touched)" class="error">
                     <p *ngIf="apellido?.errors?.['required']">El apellido es obligatorio.</p>
+                    <p *ngIf="apellido?.errors?.['minlength']">El apellido debe tener al menos 2 caracteres.</p>
+                    <p *ngIf="apellido?.errors?.['maxlength']">El apellido no puede tener más de 50 caracteres.</p>
                 </div>
             </div>
 
@@ -37,6 +41,7 @@
                 <input type="text" id="profesion" formControlName="profesion" placeholder="Tu Profesión (ej: Desarrollador Fullstack)">
                 <div *ngIf="profesion?.invalid && (profesion?.dirty || profesion?.touched)" class="error">
                     <p *ngIf="profesion?.errors?.['required']">La profesión es obligatoria.</p>
+                    <p *ngIf="profesion?.errors?.['minlength']">La profesión debe tener al menos 2 caracteres.</p>
                     <p *ngIf="profesion?.errors?.['maxlength']">La profesión no puede tener más de 50 caracteres.</p>
                 </div>
             </div>
@@ -46,6 +51,8 @@
                 <textarea id="descripcion_mi" formControlName="descripcion_mi" rows="5" placeholder="Una breve descripción sobre ti"></textarea>
                 <div *ngIf="descripcion_mi?.invalid && (descripcion_mi?.dirty || descripcion_mi?.touched)" class="error">
                     <p *ngIf="descripcion_mi?.errors?.['required']">La descripción es obligatoria.</p>
+                    <p *ngIf="descripcion_mi?.errors?.['minlength']">La descripción debe tener al menos 8 caracteres.</p>
+                    <p *ngIf="descripcion_mi?.errors?.['maxlength']">La descripción no puede tener más de 700 caracteres.</p>
                 </div>
             </div>
 
@@ -62,6 +69,7 @@
                 <input type="text" id="num_celular" formControlName="num_celular" placeholder="Ej: +5491112345678">
                 <div *ngIf="num_celular?.invalid && (num_celular?.dirty || num_celular?.touched)" class="error">
                     <p *ngIf="num_celular?.errors?.['required']">El número de celular es obligatorio.</p>
+                    <p *ngIf="num_celular?.errors?.['pattern']">Número de celular inválido.</p>
                 </div>
             </div>
 

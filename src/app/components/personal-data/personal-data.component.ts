@@ -37,12 +37,12 @@ export class PersonalDataComponent implements OnInit, OnDestroy {
   ) {
     this.backendUrl = environment.backendUrl;
     this.personaForm = this.fb.group({
-      nombre: ['', Validators.required],
-      apellido: ['', Validators.required],
-      profesion: ['', [Validators.required, Validators.maxLength(50)]],
-      descripcion_mi: ['', Validators.required],
+      nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      apellido: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      profesion: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+      descripcion_mi: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(700)]],
       fecha_nacimiento: ['', Validators.required],
-      num_celular: ['', Validators.required],
+      num_celular: ['', [Validators.required, Validators.pattern(/^[+]?[(]?\d{3}[)]?[-\s.]?\d{3}[-\s.]?\d{4,6}$/)]],
     });
   }
 

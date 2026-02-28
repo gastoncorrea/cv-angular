@@ -41,11 +41,21 @@
             <div class="form-group">
                 <label for="nombre">Nombre:</label>
                 <input type="text" id="nombre" formControlName="nombre" class="form-control">
+                <div *ngIf="personaForm.get('nombre')?.invalid && (personaForm.get('nombre')?.dirty || personaForm.get('nombre')?.touched)" class="error">
+                    <small *ngIf="personaForm.get('nombre')?.errors?.['required']" class="text-danger">El nombre es obligatorio.</small>
+                    <small *ngIf="personaForm.get('nombre')?.errors?.['minlength']" class="text-danger">El nombre debe tener al menos 2 caracteres.</small>
+                    <small *ngIf="personaForm.get('nombre')?.errors?.['maxlength']" class="text-danger">El nombre no puede tener más de 50 caracteres.</small>
+                </div>
             </div>
 
             <div class="form-group">
                 <label for="apellido">Apellido:</label>
                 <input type="text" id="apellido" formControlName="apellido" class="form-control">
+                <div *ngIf="personaForm.get('apellido')?.invalid && (personaForm.get('apellido')?.dirty || personaForm.get('apellido')?.touched)" class="error">
+                    <small *ngIf="personaForm.get('apellido')?.errors?.['required']" class="text-danger">El apellido es obligatorio.</small>
+                    <small *ngIf="personaForm.get('apellido')?.errors?.['minlength']" class="text-danger">El apellido debe tener al menos 2 caracteres.</small>
+                    <small *ngIf="personaForm.get('apellido')?.errors?.['maxlength']" class="text-danger">El apellido no puede tener más de 50 caracteres.</small>
+                </div>
             </div>
 
             <div class="form-group">
@@ -54,6 +64,9 @@
                 <div *ngIf="personaForm.get('profesion')?.invalid && (personaForm.get('profesion')?.dirty || personaForm.get('profesion')?.touched)" class="error">
                     <small *ngIf="personaForm.get('profesion')?.errors?.['required']" class="text-danger">
                         La profesión es obligatoria.
+                    </small>
+                    <small *ngIf="personaForm.get('profesion')?.errors?.['minlength']" class="text-danger">
+                        La profesión debe tener al menos 2 caracteres.
                     </small>
                     <small *ngIf="personaForm.get('profesion')?.errors?.['maxlength']" class="text-danger">
                         La profesión no puede tener más de 50 caracteres.
@@ -64,16 +77,34 @@
             <div class="form-group">
                 <label for="descripcion_mi">Sobre Mí:</label>
                 <textarea id="descripcion_mi" formControlName="descripcion_mi" rows="4" class="form-control"></textarea>
+                <div *ngIf="personaForm.get('descripcion_mi')?.invalid && (personaForm.get('descripcion_mi')?.dirty || personaForm.get('descripcion_mi')?.touched)" class="error">
+                    <small *ngIf="personaForm.get('descripcion_mi')?.errors?.['required']" class="text-danger">
+                        La descripción es obligatoria.
+                    </small>
+                    <small *ngIf="personaForm.get('descripcion_mi')?.errors?.['minlength']" class="text-danger">
+                        La descripción debe tener al menos 8 caracteres.
+                    </small>
+                    <small *ngIf="personaForm.get('descripcion_mi')?.errors?.['maxlength']" class="text-danger">
+                        La descripción no puede tener más de 700 caracteres.
+                    </small>
+                </div>
             </div>
 
             <div class="form-group">
                 <label for="fecha_nacimiento">Fecha de Nacimiento:</label>
                 <input type="date" id="fecha_nacimiento" formControlName="fecha_nacimiento" class="form-control">
+                <div *ngIf="personaForm.get('fecha_nacimiento')?.invalid && (personaForm.get('fecha_nacimiento')?.dirty || personaForm.get('fecha_nacimiento')?.touched)" class="error">
+                    <small *ngIf="personaForm.get('fecha_nacimiento')?.errors?.['required']" class="text-danger">La fecha de nacimiento es obligatoria.</small>
+                </div>
             </div>
 
             <div class="form-group">
                 <label for="num_celular">Número de Celular:</label>
                 <input type="text" id="num_celular" formControlName="num_celular" class="form-control">
+                <div *ngIf="personaForm.get('num_celular')?.invalid && (personaForm.get('num_celular')?.dirty || personaForm.get('num_celular')?.touched)" class="error">
+                    <small *ngIf="personaForm.get('num_celular')?.errors?.['required']" class="text-danger">El número de celular es obligatorio.</small>
+                    <small *ngIf="personaForm.get('num_celular')?.errors?.['pattern']" class="text-danger">Número de celular inválido.</small>
+                </div>
             </div>
 
             <div *ngIf="errorMessage" class="alert alert-danger mt-2">
