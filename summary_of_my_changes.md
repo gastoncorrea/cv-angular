@@ -54,3 +54,25 @@ Se eliminaron todas las referencias estáticas al ID de persona (`PUBLIC_PERSONA
 *   **Consistencia de Datos**:
     *   Esta refactorización garantiza que si el backend cambia la persona principal, el frontend reflejará automáticamente toda la información asociada (experiencia, estudios, habilidades) sin necesidad de modificar el código fuente.
 
+---
+
+### Gestión de Múltiples Residencias en Datos Personales
+
+Se ha mejorado el formulario de edición de información personal para permitir la gestión integral de una o varias residencias de forma dinámica.
+
+*   **PersonalDataComponent (`src/app/components/personal-data/personal-data.component.ts`)**:
+    *   Se implementó un `FormArray` llamado `residencias` dentro del `personaForm` reactivo.
+    *   Se añadieron métodos `addResidence()` y `removeResidence(index)` para permitir al usuario añadir o eliminar campos de residencia dinámicamente en la interfaz.
+    *   La lógica de `editPersona()` ahora limpia y puebla el `FormArray` con los datos actuales de la persona.
+    *   El método `onSavePersona()` se actualizó para gestionar las residencias de forma individual a través de `ResidenceService`:
+        *   Se utiliza `forkJoin` para ejecutar en paralelo la actualización de la persona, la creación/actualización de cada residencia y la eliminación de aquellas que fueron quitadas durante la edición.
+        *   Cada residencia se vincula explícitamente al ID de la persona mediante el objeto `persona: { id_persona: ... }`.
+
+
+*   **Interfaz de Usuario (`personal-data.component.html` & `.css`)**:
+    *   Se añadió una nueva sección en el formulario de edición con un diseño limpio y estructurado para las residencias.
+    *   Cada bloque de residencia permite editar Localidad, Provincia, País y Nacionalidad.
+    *   Se incluyeron botones con iconos de FontAwesome para añadir nuevas residencias o eliminar las existentes, mejorando la experiencia de usuario (UX).
+    *   Se aplicaron estilos responsivos y feedback visual (mensajes cuando no hay items) para mantener la coherencia estética de la aplicación.
+
+

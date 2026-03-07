@@ -107,6 +107,51 @@
                 </div>
             </div>
 
+            <!-- Residencias FormArray -->
+            <div class="residences-form-section">
+                <div class="section-header">
+                    <h4>Residencias</h4>
+                    <button type="button" class="btn btn-add-small" (click)="addResidence()">
+                        <i class="fa-solid fa-plus"></i> Agregar Residencia
+                    </button>
+                </div>
+
+                <div formArrayName="residencias" class="residences-list">
+                    <div *ngFor="let res of residencias.controls; let i=index" [formGroupName]="i" class="residence-item-form">
+                        <div class="residence-header">
+                            <h5>Residencia #{{i + 1}}</h5>
+                            <button type="button" class="btn btn-delete-small" (click)="removeResidence(i)">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group col">
+                                <label>Localidad:</label>
+                                <input type="text" formControlName="localidad" class="form-control">
+                            </div>
+                            <div class="form-group col">
+                                <label>Provincia:</label>
+                                <input type="text" formControlName="provincia" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col">
+                                <label>País:</label>
+                                <input type="text" formControlName="pais" class="form-control">
+                            </div>
+                            <div class="form-group col">
+                                <label>Nacionalidad:</label>
+                                <input type="text" formControlName="nacionalidad" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="residencias.length === 0" class="no-items-message">
+                    No hay residencias agregadas. Use el botón superior para añadir una.
+                </div>
+            </div>
+
             <div *ngIf="errorMessage" class="alert alert-danger mt-2">
                 {{ errorMessage }}
             </div>

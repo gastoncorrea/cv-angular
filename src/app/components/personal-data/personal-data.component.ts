@@ -1,11 +1,13 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { Persona, PersonaDto } from 'src/app/models/person.model';
 import { environment } from 'src/environments/environment';
 import { AuthService } from 'src/app/auth.service';
 import { PersonaService } from 'src/app/core/services/persona.service';
+import { ResidenceService } from 'src/app/core/services/residence.service';
 import { FormManagementService } from 'src/app/core/services/form-management.service';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin, of, Observable } from 'rxjs';
+import { Residencia } from 'src/app/models/residence.model';
 
 @Component({
   selector: 'app-personal-data',
@@ -28,10 +30,12 @@ export class PersonalDataComponent implements OnInit, OnDestroy {
   successMessage = '';
 
   private formSubscription: Subscription | undefined;
+  private deletedResidenceIds: number[] = [];
 
   constructor(
     public authService: AuthService,
     private personaService: PersonaService,
+    private residenceService: ResidenceService,
     public formService: FormManagementService,
     private fb: FormBuilder
   ) {
@@ -43,11 +47,35 @@ export class PersonalDataComponent implements OnInit, OnDestroy {
       descripcion_mi: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(700)]],
       fecha_nacimiento: ['', Validators.required],
       num_celular: ['', [Validators.required, Validators.pattern(/^[+]?[(]?\d{3}[)]?[-\s.]?\d{3}[-\s.]?\d{4,6}$/)]],
+      residencias: this.fb.array([])
     });
   }
 
   ngOnInit(): void {
     this.subscribeToFormService();
+  }
+
+  get residencias(): FormArray {
+    return this.personaForm.get('residencias') as FormArray;
+  }
+
+  addResidence(): void {
+    const residenceGroup = this.fb.group({
+      id_residencia: [null],
+      localidad: ['', [Validators.required, Validators.minLength(2)]],
+      provincia: ['', [Validators.required, Validators.minLength(2)]],
+      pais: ['', [Validators.required, Validators.minLength(2)]],
+      nacionalidad: ['', [Validators.required, Validators.minLength(2)]]
+    });
+    this.residencias.push(residenceGroup);
+  }
+
+  removeResidence(index: number): void {
+    const residence = this.residencias.at(index).value;
+    if (residence.id_residencia) {
+      this.deletedResidenceIds.push(residence.id_residencia);
+    }
+    this.residencias.removeAt(index);
   }
 
   ngOnDestroy(): void {
@@ -73,6 +101,25 @@ export class PersonalDataComponent implements OnInit, OnDestroy {
     if (this.personalData) {
       this.formService.openForm('persona-edit-form');
       this.showEditForm = true;
+      this.deletedResidenceIds = [];
+      
+      // Clear and populate residencias FormArray
+      while (this.residencias.length !== 0) {
+        this.residencias.removeAt(0);
+      }
+      
+      if (this.personalData.residencias && this.personalData.residencias.length > 0) {
+        this.personalData.residencias.forEach(res => {
+          this.residencias.push(this.fb.group({
+            id_residencia: [res.id_residencia],
+            localidad: [res.localidad, [Validators.required, Validators.minLength(2)]],
+            provincia: [res.provincia, [Validators.required, Validators.minLength(2)]],
+            pais: [res.pais, [Validators.required, Validators.minLength(2)]],
+            nacionalidad: [res.nacionalidad, [Validators.required, Validators.minLength(2)]]
+          }));
+        });
+      }
+
       this.personaForm.patchValue({
         nombre: this.personalData.nombre,
         apellido: this.personalData.apellido,
@@ -88,7 +135,7 @@ export class PersonalDataComponent implements OnInit, OnDestroy {
 
   onSavePersona(): void {
     if (this.personaForm.invalid || !this.personalData?.id_persona) {
-      this.errorMessage = 'Por favor, complete todos los campos requeridos.';
+      this.errorMessage = 'Por favor, complete todos los campos requeridos correctamente.';
       return;
     }
 
@@ -96,21 +143,53 @@ export class PersonalDataComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const updatedPersona: PersonaDto = {
-      ...this.personaForm.value,
+    // 1. Prepare Persona Data (without residences array for the persona update itself, 
+    // to avoid potential conflicts if the backend doesn't handle nested updates)
+    const { residencias, ...personaData } = this.personaForm.value;
+    const personaDto: PersonaDto = {
+      ...personaData,
       id_persona: this.personalData.id_persona
     };
 
-    this.personaService.updatePersona(this.personalData.id_persona, updatedPersona).subscribe({
+    // 2. Perform updates in sequence or parallel using forkJoin
+    const personaUpdate$ = this.personaService.updatePersona(this.personalData.id_persona, personaDto);
+    
+    // 3. Handle residences: Save new ones, update existing ones, and delete removed ones
+    const ops: Observable<any>[] = [];
+
+    // Save/Update operations
+    const currentResidencias: Residencia[] = residencias.map((res: any) => ({
+      ...res,
+      persona: { id_persona: this.personalData!.id_persona! }
+    }));
+
+    currentResidencias.forEach(res => {
+      if (res.id_residencia) {
+        ops.push(this.residenceService.updateResidence(res.id_residencia, res));
+      } else {
+        ops.push(this.residenceService.saveResidence(res));
+      }
+    });
+
+    // Delete operations
+    this.deletedResidenceIds.forEach(id => {
+      ops.push(this.residenceService.deleteResidence(id));
+    });
+
+    // 4. Combine all operations
+    forkJoin([
+      personaUpdate$,
+      ...(ops.length > 0 ? ops : [of(null)])
+    ]).subscribe({
       next: () => {
         this.isLoading = false;
-        this.successMessage = 'Información personal actualizada con éxito.';
-        this.onUploadSuccess.emit(); // Reutilizamos el evento para recargar datos
+        this.successMessage = 'Información personal y residencias actualizadas con éxito.';
+        this.onUploadSuccess.emit();
         setTimeout(() => this.formService.closeAll(), 1500);
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = 'Error al actualizar la información personal.';
+        this.errorMessage = 'Error al actualizar la información. Verifique los datos.';
         console.error('Update error:', err);
       }
     });
