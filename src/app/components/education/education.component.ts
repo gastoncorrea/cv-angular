@@ -24,7 +24,6 @@ export class EducationComponent implements OnInit, OnDestroy, OnChanges {
   errorMessage: string | undefined;
   private educationSubscription: Subscription | undefined;
   private formSubscription: Subscription | undefined;
-  private readonly PUBLIC_PERSONA_ID = 1;
   backendUrl: string;
 
   showAddEducationForm = false;
@@ -58,34 +57,32 @@ export class EducationComponent implements OnInit, OnDestroy, OnChanges {
     this.loadAllTools();
     this.subscribeToFormService();
     
-    // Si no vienen datos por Input, los cargamos nosotros
-    if (!this.education) {
+    // Si no vienen datos por Input y tenemos personaId, los cargamos
+    if (!this.education && this.personaId) {
       this.loadEducationData();
     }
     
     if (this.personaId) {
       this.newEducation.persona = { id_persona: this.personaId };
-    } else {
-      this.newEducation.persona = { id_persona: this.PUBLIC_PERSONA_ID };
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['personaId'] && this.personaId) {
       this.newEducation.persona = { id_persona: this.personaId };
-    }
-    // Si el Input cambia, actualizamos nuestra lista local
-    if (changes['education'] && this.education) {
-      // No necesitamos hacer nada extra, ya que usamos la propiedad directamente en el HTML
+      // Si el personaId cambia y no tenemos datos por Input (o queremos forzar recarga), cargamos
+      if (!changes['personaId'].firstChange) {
+        this.loadEducationData();
+      }
     }
   }
 
   loadEducationData(): void {
+    if (!this.personaId) return;
     this.isLoading = true;
     this.errorMessage = undefined;
-    const idToFetch = this.personaId || this.PUBLIC_PERSONA_ID;
     
-    this.educationSubscription = this.educationService.getEducacionByPersonaId(idToFetch).subscribe({
+    this.educationSubscription = this.educationService.getEducacionByPersonaId(this.personaId).subscribe({
       next: (data) => {
         this.education = data.reverse();
         this.isLoading = false;
@@ -280,8 +277,9 @@ export class EducationComponent implements OnInit, OnDestroy, OnChanges {
     } else {
       this.formService.openForm('edu-form');
       this.newEducation = { nombre_institucion: '', logo_imagen: '', fecha_inicio: '', fecha_fin: '', titulo: '', url_titulo: '' };
-      const idForNew = this.personaId || this.PUBLIC_PERSONA_ID;
-      this.newEducation.persona = { id_persona: idForNew };
+      if (this.personaId) {
+        this.newEducation.persona = { id_persona: this.personaId };
+      }
       this.savedEducationId = null;
       this.editingEducationId = null;
       this.cancelImageUpload();

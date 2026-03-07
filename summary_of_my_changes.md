@@ -30,3 +30,27 @@
 *   Se corrigieron errores de duplicidad de imports en `ProjectsComponent`.
 *   Se restauraron los decoradores `@Component` y los ciclos de vida `OnInit`/`OnDestroy` en `EducationComponent`.
 *   Se ajustó el modificador de acceso de servicios para permitir su uso directo en plantillas HTML.
+
+---
+
+### Refactorización para ID de Persona Dinámico y Perfil Principal
+
+Se eliminaron todas las referencias estáticas al ID de persona (`PUBLIC_PERSONA_ID = 1`) para permitir que la aplicación cargue dinámicamente el perfil configurado como principal en el backend.
+
+*   **PersonaService (`src/app/core/services/persona.service.ts`)**:
+    *   Se implementó el método `getPersonaMain()`, el cual realiza una petición GET a `${backendUrl}/persona/main` para obtener el perfil de la persona marcada como principal.
+
+*   **HomeComponent (`src/app/components/home/home.component.ts` & `.html`)**:
+    *   Se eliminó la constante estática `PUBLIC_PERSONA_ID`.
+    *   Ahora utiliza `personaService.getPersonaMain()` en el arranque para obtener los datos básicos y el ID de la persona.
+    *   El ID obtenido se propaga dinámicamente a los componentes hijos (`ProjectsComponent`, `EducationComponent`, `SkillsComponent`, `ContactsComponent`) mediante la propiedad `[personaId]`.
+
+*   **ProjectsComponent, EducationComponent & SkillsComponent**:
+    *   Se eliminaron las constantes estáticas `PUBLIC_PERSONA_ID`.
+    *   Se añadió el decorador `@Input() personaId: number | undefined`.
+    *   Se implementó el ciclo de vida `ngOnChanges` para detectar cambios en el `personaId` y disparar la recarga de datos específica (proyectos, educación, herramientas/habilidades) de forma reactiva.
+    *   Se ajustaron los métodos de guardado para asociar correctamente los nuevos registros al `personaId` dinámico.
+
+*   **Consistencia de Datos**:
+    *   Esta refactorización garantiza que si el backend cambia la persona principal, el frontend reflejará automáticamente toda la información asociada (experiencia, estudios, habilidades) sin necesidad de modificar el código fuente.
+

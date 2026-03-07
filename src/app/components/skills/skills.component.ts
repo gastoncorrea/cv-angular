@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Herramienta } from 'src/app/models/tools.model'; // Import Herramienta
 import { Proyecto } from 'src/app/models/project.model'; // Import Proyecto
 import { Educacion } from 'src/app/models/education.model'; // Import Educacion
@@ -15,7 +15,8 @@ import { catchError } from 'rxjs/operators'; // Import catchError
   templateUrl: './skills.component.html',
   styleUrls: ['./skills.component.css']
 })
-export class SkillsComponent implements OnInit, OnDestroy {
+export class SkillsComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() personaId: number | undefined;
   allProjects: Proyecto[] = [];
   allEducation: Educacion[] = [];
   skillsWithProgress: { herramienta: Herramienta, usageCount: number, percentage: number }[] = [];
@@ -24,7 +25,6 @@ export class SkillsComponent implements OnInit, OnDestroy {
   errorMessage: string | undefined;
   private dataSubscription: Subscription | undefined;
   private refreshSubscription: Subscription | undefined;
-  private readonly PUBLIC_PERSONA_ID = 1; // Assuming a fixed ID for the public persona profile
   backendUrl: string; // Declare backendUrl property
 
   constructor(
@@ -37,8 +37,16 @@ export class SkillsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadAllUsageData();
+    if (this.personaId) {
+      this.loadAllUsageData();
+    }
     this.subscribeToRefresh();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['personaId'] && this.personaId && !changes['personaId'].firstChange) {
+      this.loadAllUsageData();
+    }
   }
 
   private subscribeToRefresh(): void {
@@ -48,17 +56,18 @@ export class SkillsComponent implements OnInit, OnDestroy {
   }
 
   loadAllUsageData(): void {
+    if (!this.personaId) return;
     this.isLoading = true;
     this.errorMessage = undefined;
 
     this.dataSubscription = forkJoin([
-      this.proyectoService.getProyectoByPersonaId(this.PUBLIC_PERSONA_ID).pipe(
+      this.proyectoService.getProyectoByPersonaId(this.personaId).pipe(
         catchError(error => {
           if (error.message.includes('404')) return of([]);
           return throwError(() => error);
         })
       ),
-      this.educacionService.getEducacionByPersonaId(this.PUBLIC_PERSONA_ID).pipe(
+      this.educacionService.getEducacionByPersonaId(this.personaId).pipe(
         catchError(error => {
           if (error.message.includes('404')) return of([]);
           return throwError(() => error);

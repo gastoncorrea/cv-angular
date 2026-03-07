@@ -13,7 +13,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   errorMessage: string | undefined;
   private personaSubscription: Subscription | undefined;
-  private readonly PUBLIC_PERSONA_ID = 1; // Assuming a fixed ID for the public persona profile
 
   constructor(
     private personaService: PersonaService,
@@ -26,7 +25,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   loadPersonaData(): void {
     this.isLoading = true;
     this.errorMessage = undefined;
-    this.personaSubscription = this.personaService.getPersona(this.PUBLIC_PERSONA_ID).subscribe({
+    this.personaSubscription = this.personaService.getPersonaMain().subscribe({
       next: (data: Persona) => {
         // Si data es null o no tiene campos esenciales, lo tratamos como sin datos
         if (!data || (!data.nombre && !data.apellido)) {

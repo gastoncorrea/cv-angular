@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { Proyecto, ProyectoDto } from 'src/app/models/project.model';
 import { ProyectoService } from 'src/app/core/services/project.service';
 import { HerramientaService } from 'src/app/core/services/tool.service';
@@ -15,13 +15,13 @@ import { DataRefreshService } from 'src/app/core/services/data-refresh.service';
   templateUrl: './projects.component.html',
   styleUrls: ['./projects.component.css']
 })
-export class ProjectsComponent implements OnInit, OnDestroy {
+export class ProjectsComponent implements OnInit, OnDestroy, OnChanges {
+  @Input() personaId: number | undefined;
   projects: Proyecto[] | undefined;
   isLoading: boolean = false;
   errorMessage: string | undefined;
   private projectsSubscription: Subscription | undefined;
   private formSubscription: Subscription | undefined;
-  private readonly PUBLIC_PERSONA_ID = 1;
   backendUrl: string;
 
   showAddProjectForm = false;
@@ -52,9 +52,17 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadProjectData();
+    if (this.personaId) {
+      this.loadProjectData();
+    }
     this.loadAllTools();
     this.subscribeToFormService();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['personaId'] && !changes['personaId'].firstChange) {
+      this.loadProjectData();
+    }
   }
 
   private subscribeToFormService(): void {
@@ -230,8 +238,9 @@ export class ProjectsComponent implements OnInit, OnDestroy {
   }
 
   loadProjectData(): void {
+    if (!this.personaId) return;
     this.isLoading = true;
-    this.projectsSubscription = this.proyectoService.getProyectoByPersonaId(this.PUBLIC_PERSONA_ID).subscribe({
+    this.projectsSubscription = this.proyectoService.getProyectoByPersonaId(this.personaId).subscribe({
       next: (data: ProyectoDto[]) => {
         this.projects = data.reverse();
         this.isLoading = false;
@@ -255,7 +264,9 @@ export class ProjectsComponent implements OnInit, OnDestroy {
     } else {
       this.formService.openForm('project-form');
       this.newProject = { nombre: '', descripcion: '', url: '', inicio: '', fin: '' };
-      this.newProject.persona = { id_persona: this.PUBLIC_PERSONA_ID };
+      if (this.personaId) {
+        this.newProject.persona = { id_persona: this.personaId };
+      }
       this.savedProjectId = null;
       this.editingProjectId = null;
       this.cancelImageUpload();

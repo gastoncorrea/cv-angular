@@ -89,6 +89,17 @@ export class PersonaService {
   }
 
   /**
+   * Retrieves the main Persona profile from the API.
+   * GET /persona/main
+   * @returns An Observable of a single PersonaDto.
+   */
+  public getPersonaMain(): Observable<PersonaDto> {
+    return this.http.get<PersonaDto>(`${this.URL_API}/main`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
    * Centralized error handling for HTTP requests.
    * @param error The HttpErrorResponse object.
    * @returns An Observable that re-throws a user-friendly error message.
