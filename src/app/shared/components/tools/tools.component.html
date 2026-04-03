@@ -22,7 +22,7 @@
                     <h4>{{ tool.nombre }}</h4>
                     <p>{{ tool.version }}</p>
                     <p *ngIf="tool.descripcion">{{ tool.descripcion }}</p>
-                    <a *ngIf="tool.url" [href]="tool.url" target="_blank" rel="noopener noreferrer">Ver recurso</a>
+                    <a *ngIf="tool.url" [href]="tool.url" target="_blank" rel="noopener noreferrer" class="view-resource-button">Ver recurso</a>
                 </div>
             </div>
         </div>
